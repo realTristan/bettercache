@@ -1,5 +1,10 @@
 # Better Cache ![Stars](https://img.shields.io/github/stars/realTristan/BetterCache?color=brightgreen) ![Watchers](https://img.shields.io/github/watchers/realTristan/BetterCache?label=Watchers)
 
+BetterCache, A lightweight, lightning fast caching system.
+
+# About
+- Better Cache is an ultra fast caching system that uses an array of bytes for storing data instead of the very common map caching system. Because the data is stored in an array of bytes instead of a map, it allows the user to achieve lightning fast full text search speeds. (within microseconds to milliseconds)
+- Better Cache also only uses native golang modules which makes it fast, lightweight and easy to use.
 
 # License
 MIT License
