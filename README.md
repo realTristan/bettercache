@@ -19,6 +19,40 @@ Lightning Fast Caching System for Go.
     (10,000) Cache Size: 250,000 -> ~16.87ms
 ```
 
+# Quick Usage
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+    // Add key1 to the cache
+    cache.Set("key1", map[string]string{
+		"summary": "My name is \"Tristan\"",
+	})
+
+    // Get key from the cache
+    var data = cache.Get("key1")
+    fmt.Println(data)
+
+    // Full Text Search for the key's contents
+	res := cache.FullTextSearch(TextSearch{
+		Limit:      -1,
+		Query:      []byte("Tristan"),
+		StrictMode: false,
+	})
+    fmt.Println(res)
+
+    // Remove key1 from the cache
+    cache.Remove("key1")
+}
+
+```
+
 # License
 MIT License
 
