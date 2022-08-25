@@ -4,8 +4,8 @@
 Lightning Fast Caching System for Go.
 
 # About
-- Better Cache is an ultra fast caching system that uses an array of bytes for storing data instead of the very common map caching system. Because the data is stored in an array of bytes instead of a map, it allows the user to achieve lightning fast full text search speeds. (within microseconds to milliseconds)
-- Better Cache also only uses native golang modules which makes it fast, lightweight and easy to use.
+- Better Cache is an ultra fast caching system that uses an array of bytes for storing data instead of the very common map caching system. Because the data is stored in an array of bytes instead of a map, it enables lightning fast full text searches. (within microseconds to milliseconds)
+- Better Cache also uses solely native golang modules which makes it fast, lightweight and secure.
 
 # Benchmarks
 
