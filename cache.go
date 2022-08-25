@@ -1,4 +1,4 @@
-package cache
+package main
 
 // Import modules
 import (
@@ -21,11 +21,13 @@ type Cache struct {
 }
 
 // Initialize Cache
-func Init() *Cache {
-	return &Cache{
-		Data:  []byte{'*'},
+func Init(size int) *Cache {
+	var c *Cache = &Cache{
+		Data:  make([]byte, size+1),
 		Mutex: &sync.RWMutex{},
 	}
+	c.Data[0] = '*'
+	return c
 }
 
 // The Set() function sets the data for the

@@ -1,10 +1,10 @@
 package main
 
-import (
-	"github.com/realTristan/BetterCache/cache"
-)
-
+// Main function
 func main() {
-	var Cache *cache.Cache = cache.Init()
+	// Init the cache
+	var Cache *Cache = Init(100) // 100 -> Size in bytes
+
+	// Test the full text search
 	Cache.TestFullTextSearch()
 }

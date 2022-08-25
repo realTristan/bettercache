@@ -1,4 +1,4 @@
-package cache
+package main
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func (cache *Cache) TestGet() {
 
 // Function to test the full text search function
 func (cache *Cache) TestFullTextSearch() {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1; i++ {
 		cache.Set("key2", map[string]string{
 			"summary": "my name is \"daniel!\"",
 		})
@@ -57,11 +57,11 @@ func (cache *Cache) TestFullTextSearch() {
 	startTime := time.Now()
 
 	// Get the text search result
-	cache.FullTextSearch(TextSearch{
+	res := cache.FullTextSearch(TextSearch{
 		Limit:      -1,
 		Query:      []byte("daniel"),
 		StrictMode: false,
 	})
 	// Print result
-	fmt.Printf("FullTextSearch() Benchmark: (%v) -> %v\n\n", time.Since(startTime), nil)
+	fmt.Printf("FullTextSearch() Benchmark: (%v) -> %v\n\n", time.Since(startTime), res)
 }
