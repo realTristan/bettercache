@@ -184,6 +184,6 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 			}
 		}
 	}
-	// Return the combined arrays
+	// Return the result
 	return Result
 }
