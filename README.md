@@ -6,9 +6,17 @@ BetterCache, A lightweight, lightning fast caching system.
 # About
 - Better Cache is an ultra fast caching system that uses an array of bytes for storing data instead of the very common map caching system. Because the data is stored in an array of bytes instead of a map, it allows the user to achieve lightning fast full text search speeds. (within microseconds to milliseconds)
 - Better Cache also only uses native golang modules which makes it fast, lightweight and easy to use.
-=======
-![banner (5)](https://user-images.githubusercontent.com/75189508/186757681-6b7f97e8-ec37-448a-83cc-75106ed16309.png)
->>>>>>> f85e4fdd612b234b52647de18e4f248f07ded56a
+
+# Benchmarks
+
+<h3>Full Text Search</h3>
+```
+    Cache Size: 25 -> ~42µs
+    Cache Size: 250 -> ~82µs
+    Cache Size: 2500 -> ~220µs
+    Cache Size: 25000 -> ~1.63ms
+    Cache Size: 250000 -> ~16.87ms
+```
 
 # License
 MIT License
