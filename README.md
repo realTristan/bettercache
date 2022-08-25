@@ -26,7 +26,7 @@ package main
 
 import (
     "fmt"
-    "github.com/realTristan/BetterCache"
+    cache "github.com/realTristan/BetterCache"
 )
 
 func main() {
