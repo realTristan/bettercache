@@ -50,13 +50,13 @@ func Init(size int) *Cache {
 func (cache *Cache) serialize() map[string]map[string]string {
 	// Convert the byte cache into a json
 	// serializable string
-	var _cache = []byte{'{'}
-	_cache = append(_cache, cache.Data[1:len(cache.Data)-1]...)
-	_cache = append(_cache, '}')
+	var c = []byte{'{'}
+	c = append(c, cache.Data[1:len(cache.Data)-1]...)
+	c = append(c, '}')
 
 	// Unmarshal the serialized cache
 	var tmp map[string]map[string]string
-	json.Unmarshal(_cache, &tmp)
+	json.Unmarshal(c, &tmp)
 
 	// Return the map
 	return tmp
