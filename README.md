@@ -14,9 +14,9 @@ BetterCache, A lightweight, lightning fast caching system.
 ```
     (1) Cache Size: 25 -> ~42µs
     (10) Cache Size: 250 -> ~82µs
-    (100) Cache Size: 2500 -> ~220µs
-    (1,000) Cache Size: 25000 -> ~1.63ms
-    (10,000) Cache Size: 250000 -> ~16.87ms
+    (100) Cache Size: 2,500 -> ~220µs
+    (1,000) Cache Size: 25,000 -> ~1.63ms
+    (10,000) Cache Size: 250,000 -> ~16.87ms
 ```
 
 # License
