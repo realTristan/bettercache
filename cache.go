@@ -125,9 +125,9 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 		inString bool = false
 		// mapStart -> Track opening bracket
 		mapStart int = -1
-		// closeBracketCount -> Track closing brackets per course map
+		// closeBracketCount -> Track closing brackets per map
 		closeBracketCount int = 0
-		// similarResult -> Array with all courses that contain the query
+		// Result -> Array with all maps containing the query
 		Result []map[string]string
 		// Set the temp cache
 		TempCache []byte = cache.Data
@@ -141,8 +141,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 
 	// Iterate over the lowercase cache string
 	for i := 0; i < len(TempCache); i++ {
-		// Break the loop if there's too many similar courses
-		if TS.Limit > 0 && len(Result) > TS.Limit {
+		// Break the loop if over the text search limit
+		if TS.Limit > 0 && len(Result) >= TS.Limit {
 			break
 		} else
 
@@ -154,8 +154,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 			}
 		}
 
-		// Check if current index is the start of
-		// the course data map
+		// Check if current index is the start of a map
 		if TempCache[i] == '{' && !inString {
 			if mapStart == -1 {
 				mapStart = i
@@ -163,8 +162,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 			closeBracketCount++
 		} else
 
-		// Check if the current index is the end of
-		// the course data map
+		// Check if the current index is the end of the map
 		if TempCache[i] == '}' && !inString {
 			if closeBracketCount == 1 {
 				// Check if the map contains the query string
