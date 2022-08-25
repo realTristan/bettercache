@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Function to test the Set() function
 func (cache *Cache) TestSet() {
 	// Track speed
 	startTime := time.Now()
@@ -18,6 +19,7 @@ func (cache *Cache) TestSet() {
 	fmt.Printf("\nTest: Set() -> (%v)\n", time.Since(startTime))
 }
 
+// Function to test the Remove() function
 func (cache *Cache) TestRemove() {
 	// Add key2 to the map
 	cache.Set("key2", map[string]string{
@@ -32,6 +34,7 @@ func (cache *Cache) TestRemove() {
 	fmt.Printf("\nTest: Remove() -> (%v)\n", time.Since(startTime))
 }
 
+// Function to Test the Get() function
 func (cache *Cache) TestGet() {
 	// Add key1 to the map
 	cache.Set("key1", map[string]string{
@@ -46,7 +49,7 @@ func (cache *Cache) TestGet() {
 	fmt.Printf("\nTest: Remove() -> (%v): (%v)\n", time.Since(startTime), data)
 }
 
-// Function to test the full text search function
+// Function to test the FullTextSearch() function
 func (cache *Cache) TestFullTextSearch() {
 	for i := 0; i < 1; i++ {
 		cache.Set("key2", map[string]string{
