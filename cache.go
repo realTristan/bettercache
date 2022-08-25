@@ -36,17 +36,20 @@ func Init(size int) *Cache {
 }
 
 // The Set() function sets the value for the
-// provided key inside the cache. If you want to
-// set the value to a map, slice, etc. Use json.Marshal
-// to convert it to a string before-hand
-func (cache *Cache) Set(key string, data string) {
+// provided key inside the cache.
+//
+// Example: key1: map[string]string{"1": "2"}
+func (cache *Cache) Set(key string, data map[string]string) {
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
 	defer cache.Mutex.Unlock()
 
 	// Marhsal the data
-	var tmp, _ = json.Marshal(map[string]string{key: data})
-
+	var (
+		tmp, _ = json.Marshal(map[string]map[string]string{
+			key: data,
+		})
+	)
 	// Set the byte cache value
 	cache.Data = append(
 		cache.Data, append(tmp[1:len(tmp)-1], ',')...)
@@ -54,7 +57,7 @@ func (cache *Cache) Set(key string, data string) {
 
 // The serialize() function covnerts the byte cache into
 // a map that can be used for reading keys, deleting keys, etc.
-func (cache *Cache) serialize() map[string]string {
+func (cache *Cache) serialize() map[string]map[string]string {
 	// Convert the byte cache into a json
 	// serializable string
 	var _cache = []byte{'{'}
@@ -62,7 +65,7 @@ func (cache *Cache) serialize() map[string]string {
 	_cache = append(_cache, '}')
 
 	// Unmarshal the serialized cache
-	var tmp map[string]string
+	var tmp map[string]map[string]string
 	json.Unmarshal(_cache, &tmp)
 
 	// Return the map
@@ -96,7 +99,7 @@ func (cache *Cache) Remove(key string) {
 //
 // Once the cache is converted into a map, it will then
 // return the value of the provided key
-func (cache *Cache) Get(key string) string {
+func (cache *Cache) Get(key string) map[string]string {
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
 	defer cache.Mutex.RUnlock()

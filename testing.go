@@ -10,22 +10,20 @@ func (cache *Cache) TestSet() {
 	startTime := time.Now()
 
 	// Add key1 to the cache
-	// Convert to map to a string before hand (json.Marshal)
-	cache.Set("key1", `{
+	cache.Set("key1", map[string]string{
 		"1":       "2",
 		"summary": "my name is \"tristan\"",
-	}`)
+	})
 	// Print the result
 	fmt.Printf("\nTest: Set() -> (%v)\n", time.Since(startTime))
 }
 
 func (cache *Cache) TestRemove() {
 	// Add key2 to the map
-	// Convert to map to a string before hand (json.Marshal)
-	cache.Set("key2", `{
+	cache.Set("key2", map[string]string{
 		"1":       "2",
 		"summary": "my name is \"daniel\"",
-	}`)
+	})
 	// Track speed
 	startTime := time.Now()
 	// Remove key2
@@ -36,11 +34,10 @@ func (cache *Cache) TestRemove() {
 
 func (cache *Cache) TestGet() {
 	// Add key1 to the map
-	// Convert to map to a string before hand (json.Marshal)
-	cache.Set("key1", `{
+	cache.Set("key1", map[string]string{
 		"1":       "2",
 		"summary": "my name is \"tristan\"",
-	}`)
+	})
 	// Track speed
 	startTime := time.Now()
 	// Get the key
@@ -52,10 +49,9 @@ func (cache *Cache) TestGet() {
 // Function to test the full text search function
 func (cache *Cache) TestFullTextSearch() {
 	for i := 0; i < 1; i++ {
-		// Convert to map to a string before hand (json.Marshal)
-		cache.Set("key2", `{
+		cache.Set("key2", map[string]string{
 			"summary": "my name is \"daniel!\"",
-		}`)
+		})
 	}
 	// Track speed
 	startTime := time.Now()
