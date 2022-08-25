@@ -7,14 +7,19 @@ import (
 	"sync"
 )
 
-// TextSearch object
+// The TextSearch struct contains three primary keys
+/* Query: []byte -> What to query for									*/
+/* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
+/* Limit: int -> The number of results to return						*/
 type TextSearch struct {
 	Query      []byte
 	StrictMode bool
 	Limit      int
 }
 
-// Cache struct
+// The Cache struct contains two primary keys
+/* Data: []byte -> The Cache Data 							 */
+/* Mutex: *sync.Mutex -> Used for locking/unlocking the data */
 type Cache struct {
 	Data  []byte
 	Mutex *sync.RWMutex
@@ -30,26 +35,26 @@ func Init(size int) *Cache {
 	return c
 }
 
-// The Set() function sets the data for the
-// given key in the cache
-func (cache *Cache) Set(key string, data map[string]string) {
+// The Set() function sets the value for the
+// provided key inside the cache. If you want to
+// set the value to a map, slice, etc. Use json.Marshal
+// to convert it to a string before-hand
+func (cache *Cache) Set(key string, data string) {
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
 	defer cache.Mutex.Unlock()
 
 	// Marhsal the data
-	var (
-		tmp, _ = json.Marshal(map[string]map[string]string{
-			key: data,
-		})
-	)
+	var tmp, _ = json.Marshal(map[string]string{key: data})
+
 	// Set the byte cache value
 	cache.Data = append(
 		cache.Data, append(tmp[1:len(tmp)-1], ',')...)
 }
 
-// Convert the cache into a map
-func (cache *Cache) Serialize() map[string]map[string]string {
+// The serialize() function covnerts the byte cache into
+// a map that can be used for reading keys, deleting keys, etc.
+func (cache *Cache) serialize() map[string]string {
 	// Convert the byte cache into a json
 	// serializable string
 	var _cache = []byte{'{'}
@@ -57,21 +62,27 @@ func (cache *Cache) Serialize() map[string]map[string]string {
 	_cache = append(_cache, '}')
 
 	// Unmarshal the serialized cache
-	var tmp map[string]map[string]string
+	var tmp map[string]string
 	json.Unmarshal(_cache, &tmp)
 
 	// Return the map
 	return tmp
 }
 
-// Remove a key from the cache
+// The Remove() function locks then unlocks the
+// cache data to ensure safety before serializing the
+// byte cache into a map
+//
+// Once the cache is converted into a map, it deletes
+// the key from said map then re-converts the map into
+// a byte slice, setting the cache.Data to said slice
 func (cache *Cache) Remove(key string) {
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
 	defer cache.Mutex.Unlock()
 
 	// Get the cache map and delete the key
-	var _cache = cache.Serialize()
+	var _cache = cache.serialize()
 	delete(_cache, key)
 
 	// Set the Cache Data
@@ -79,17 +90,27 @@ func (cache *Cache) Remove(key string) {
 	cache.Data = append([]byte{'*'}, data[1:]...)
 }
 
-// Get a key from the cache
-func (cache *Cache) Get(key string) map[string]string {
+// The Get() function read locks then read unlocks
+// the cache data to ensure safety before serializing
+// the byte cache to a map.
+//
+// Once the cache is converted into a map, it will then
+// return the value of the provided key
+func (cache *Cache) Get(key string) string {
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
 	defer cache.Mutex.RUnlock()
 
 	// Return the cache data
-	return cache.Serialize()[key]
+	return cache.serialize()[key]
 }
 
-// The FullTextSearch() function..
+// The FullTextSearch() function iterates through the cache data
+// and returns the value of a key. This value contains the Query
+// defined in the provided TextSearch object
+//
+// To ensure safety, the cache data is locked then unlocked once
+// no longer being used
 func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]interface{} {
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
@@ -97,7 +118,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]interface{} {
 
 	// Define Variables
 	var (
-		// Track whether bracket is inside a string
+		// inString -> Track whether bracket is inside a string
 		inString bool = false
 		// courseMapStart -> Track opening bracket
 		courseMapStart int = -1
@@ -110,6 +131,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]interface{} {
 	)
 
 	// Check if strict mode is enabled
+	// If true, convert the temp cache to lowercase
 	if !TS.StrictMode {
 		TempCache = bytes.ToLower(cache.Data)
 	}
@@ -119,9 +141,10 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]interface{} {
 		// Break the loop if there's too many similar courses
 		if TS.Limit > 0 && len(Result) > TS.Limit {
 			break
-		}
+		} else
 
-		// Check whether in string or not
+		// Check whether the current index is
+		// in a string or not
 		if i > 0 {
 			if TempCache[i] == '"' && TempCache[i-1] != '\\' {
 				inString = !inString

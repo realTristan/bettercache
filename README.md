@@ -25,8 +25,8 @@ Lightning Fast Caching System for Go.
 package main
 
 import (
-	"fmt"
-	"time"
+    "fmt"
+    "github.com/realTristan/BetterCache"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
     fmt.Println(data)
 
     // Full Text Search for the key's contents
-	res := cache.FullTextSearch(TextSearch{
+	var res = cache.FullTextSearch(TextSearch{
 		Limit:      -1,
 		Query:      []byte("Tristan"),
 		StrictMode: false,
