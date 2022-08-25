@@ -123,8 +123,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 	var (
 		// inString -> Track whether bracket is inside a string
 		inString bool = false
-		// courseMapStart -> Track opening bracket
-		courseMapStart int = -1
+		// mapStart -> Track opening bracket
+		mapStart int = -1
 		// closeBracketCount -> Track closing brackets per course map
 		closeBracketCount int = 0
 		// similarResult -> Array with all courses that contain the query
@@ -157,8 +157,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 		// Check if current index is the start of
 		// the course data map
 		if TempCache[i] == '{' && !inString {
-			if courseMapStart == -1 {
-				courseMapStart = i
+			if mapStart == -1 {
+				mapStart = i
 			}
 			closeBracketCount++
 		} else
@@ -168,17 +168,17 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 		if TempCache[i] == '}' && !inString {
 			if closeBracketCount == 1 {
 				// Check if the map contains the query string
-				if bytes.Contains(TempCache[courseMapStart:i+1], TS.Query) {
+				if bytes.Contains(TempCache[mapStart:i+1], TS.Query) {
 					// Convert the string to a map
 					var data map[string]string
-					json.Unmarshal(cache.Data[courseMapStart:i+1], &data)
+					json.Unmarshal(cache.Data[mapStart:i+1], &data)
 
 					// Append the map to the result array
 					Result = append(Result, data)
 				}
 				// Reset indexing variables
 				closeBracketCount = 0
-				courseMapStart = -1
+				mapStart = -1
 			} else {
 				closeBracketCount--
 			}
