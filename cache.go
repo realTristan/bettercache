@@ -25,8 +25,18 @@ type Cache struct {
 	Mutex *sync.RWMutex
 }
 
+// Global Variables
+var (
+	// CacheSize -> The size of the cache
+	CacheSize int
+)
+
 // Initialize Cache
 func Init(size int) *Cache {
+	// Set global variables
+	CacheSize = size
+
+	// Create new cache
 	var c *Cache = &Cache{
 		Data:  make([]byte, size+1),
 		Mutex: &sync.RWMutex{},
@@ -62,14 +72,19 @@ func (cache *Cache) Set(key string, data map[string]string) {
 	defer cache.Mutex.Unlock()
 
 	// Marhsal the data
-	var (
-		tmp, _ = json.Marshal(map[string]map[string]string{
-			key: data,
-		})
-	)
+	var tmp, _ = json.Marshal(map[string]map[string]string{
+		key: data,
+	})
 	// Set the byte cache value
 	cache.Data = append(
 		cache.Data, append(tmp[1:len(tmp)-1], ',')...)
+}
+
+// The Exists() function returns whether the
+// provided key exists in the cache
+func (cache *Cache) Exists(key string) bool {
+	var _, i = cache.serialize()[key]
+	return i
 }
 
 // The Remove() function locks then unlocks the
