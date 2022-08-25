@@ -35,6 +35,23 @@ func Init(size int) *Cache {
 	return c
 }
 
+// The serialize() function covnerts the byte cache into
+// a map that can be used for reading keys, deleting keys, etc.
+func (cache *Cache) serialize() map[string]map[string]string {
+	// Convert the byte cache into a json
+	// serializable string
+	var _cache = []byte{'{'}
+	_cache = append(_cache, cache.Data[1:len(cache.Data)-1]...)
+	_cache = append(_cache, '}')
+
+	// Unmarshal the serialized cache
+	var tmp map[string]map[string]string
+	json.Unmarshal(_cache, &tmp)
+
+	// Return the map
+	return tmp
+}
+
 // The Set() function sets the value for the
 // provided key inside the cache.
 //
@@ -53,23 +70,6 @@ func (cache *Cache) Set(key string, data map[string]string) {
 	// Set the byte cache value
 	cache.Data = append(
 		cache.Data, append(tmp[1:len(tmp)-1], ',')...)
-}
-
-// The serialize() function covnerts the byte cache into
-// a map that can be used for reading keys, deleting keys, etc.
-func (cache *Cache) serialize() map[string]map[string]string {
-	// Convert the byte cache into a json
-	// serializable string
-	var _cache = []byte{'{'}
-	_cache = append(_cache, cache.Data[1:len(cache.Data)-1]...)
-	_cache = append(_cache, '}')
-
-	// Unmarshal the serialized cache
-	var tmp map[string]map[string]string
-	json.Unmarshal(_cache, &tmp)
-
-	// Return the map
-	return tmp
 }
 
 // The Remove() function locks then unlocks the
