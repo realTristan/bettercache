@@ -10,6 +10,7 @@ BetterCache, A lightweight, lightning fast caching system.
 # Benchmarks
 
 <h3>Full Text Search</h3>
+
 ```
     Cache Size: 25 -> ~42µs
     Cache Size: 250 -> ~82µs
