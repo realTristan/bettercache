@@ -30,6 +30,9 @@ import (
 )
 
 func main() {
+    // Initialize the cache
+	var cache *cache.Cache = cache.Init(100) // 100 bytes
+
     // Add key1 to the cache
     cache.Set("key1", map[string]string{
 		"summary": "My name is \"Tristan\"",
