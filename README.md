@@ -40,10 +40,10 @@ func main() {
     fmt.Println(data)
 
     // Full Text Search for the key's contents
-	var res = cache.FullTextSearch(TextSearch{
-		Limit:      -1,
-		Query:      []byte("Tristan"),
-		StrictMode: false,
+	var res = cache.FullTextSearch(cache.TextSearch{
+		Limit:      -1,                 // No limit
+		Query:      []byte("tristan"),  // Search for "tristan"
+		StrictMode: false,              // Ignore CAPS
 	})
     fmt.Println(res)
 
