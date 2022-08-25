@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"sync"
+	"time"
 )
 
 // The TextSearch struct contains three primary keys
@@ -28,13 +29,13 @@ type Cache struct {
 // Global Variables
 var (
 	// CacheSize -> The size of the cache
-	CacheSize int
+	MaxCacheSize int
 )
 
 // Initialize Cache
 func Init(size int) *Cache {
 	// Set global variables
-	CacheSize = size
+	MaxCacheSize = size
 
 	// Create new cache
 	var c *Cache = &Cache{
@@ -85,6 +86,82 @@ func (cache *Cache) Set(key string, data map[string]string) {
 func (cache *Cache) Exists(key string) bool {
 	var _, i = cache.serialize()[key]
 	return i
+}
+
+// The GetByteSize() function returns the current size of the
+// cache bytes and the cache maximum size
+func (cache *Cache) GetByteSize() (int, int) {
+	return len(cache.Data), MaxCacheSize
+}
+
+// The GetMapSize() function returns the
+// amount of keys in the cache map and the cache
+// maximum size
+func (cache *Cache) GetMapSize() (int, int) {
+	return len(cache.serialize()), MaxCacheSize
+}
+
+// The ExpireKey() function removes the provided key
+// from the cache after the given time
+func (cache *Cache) ExpireKey(key string, _time time.Duration) {
+	go func(key string, _time time.Duration) {
+		time.Sleep(_time)
+		cache.Remove(key)
+	}(key, _time)
+}
+
+// The Flush() function resets the cache
+// data. Make sure to use this function when
+// clearing the cache!
+func (cache *Cache) Flush() {
+	cache.Data = []byte{'*'}
+}
+
+// The SerializeData() function takes all the cache data
+// and adds it's key's values to it's own map
+//
+// Example: {"key1": {"a": "b", "1": "2"}}
+// Will be converted to: {"a": "b", "1", "2"}
+func (cache *Cache) SerializeData() map[string]string {
+	// Define variables
+	var (
+		// res -> Result map
+		res map[string]string = make(map[string]string)
+		// _cache -> Serialized cache
+		_cache = cache.serialize()
+	)
+	// Iterate over the serialized cache
+	for _, v := range _cache {
+		for k, _v := range v {
+			res[k] = _v
+		}
+	}
+	// Return the result
+	return res
+}
+
+// The DumpBytes() function returns the cache
+// bytes. Use the DumpData() function for returning
+// the actual map
+func (cache *Cache) DumpBytes() []byte {
+	return cache.Data
+}
+
+// The DumpData() function returns the serialized
+// cache map. Use the DumpData() function for returning
+// the cache bytes
+func (cache *Cache) DumpData() map[string]map[string]string {
+	return cache.serialize()
+}
+
+// The GetKeys() function returns all the keys
+// inside the cache
+func (cache *Cache) GetKeys() []string {
+	var res []string
+	for k := range cache.serialize() {
+		res = append(res, k)
+	}
+	return res
 }
 
 // The Remove() function locks then unlocks the
