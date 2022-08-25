@@ -114,7 +114,7 @@ func (cache *Cache) Get(key string) map[string]string {
 //
 // To ensure safety, the cache data is locked then unlocked once
 // no longer being used
-func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]interface{} {
+func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
 	defer cache.Mutex.RUnlock()
@@ -128,7 +128,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]interface{} {
 		// closeBracketCount -> Track closing brackets per course map
 		closeBracketCount int = 0
 		// similarResult -> Array with all courses that contain the query
-		Result []map[string]interface{}
+		Result []map[string]string
 		// Set the temp cache
 		TempCache []byte = cache.Data
 	)
@@ -170,7 +170,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]interface{} {
 				// Check if the map contains the query string
 				if bytes.Contains(TempCache[courseMapStart:i+1], TS.Query) {
 					// Convert the string to a map
-					var data map[string]interface{}
+					var data map[string]string
 					json.Unmarshal(cache.Data[courseMapStart:i+1], &data)
 
 					// Append the map to the result array
