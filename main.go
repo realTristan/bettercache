@@ -29,11 +29,11 @@ func main() {
 
 	// Test setting a duplicate key
 	startTime = time.Now()
-	Cache.Set("key1", "my name is |key2|~ \"daniel\"")
+	Cache.Set("key1", "my name is key0: \"daniel\"")
 	fmt.Printf("Set (key1) -> (%v)\n\n", time.Since(startTime))
 
 	// Test setting a key with the value of a key name
-	Cache.Set("key2", "my name is |key2|~ \"michael\"")
+	Cache.Set("key2", "my name is key2:28 \"michael\"")
 
 	// Test getting a key
 	startTime = time.Now()

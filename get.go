@@ -14,7 +14,7 @@ func (cache *Cache) Get(key string) string {
 	defer cache.Mutex.RUnlock()
 
 	// Make sure the cache contains the provided key first
-	var newKey []byte = []byte(fmt.Sprintf(`|%s|~`, key))
+	var newKey []byte = []byte(fmt.Sprintf(`%s:`, key))
 	if !bytes.Contains(cache.Data, newKey) {
 		return ""
 	}

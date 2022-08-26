@@ -56,7 +56,7 @@ func Init(size int) *Cache {
 // No read lock/unlock because this function isn't
 // as heavy as the ones that do utilize the read locks
 func (cache *Cache) Exists(key string) bool {
-	return bytes.Contains(cache.Data, []byte(fmt.Sprintf(`|%s|~`, key)))
+	return len(cache.Get(key)) > 0
 }
 
 // The GetByteSize() function returns the current size of the
@@ -118,7 +118,7 @@ func (cache *Cache) Set(key string, data string) string {
 		// removedValue -> The previous value removed
 		removedValue string = ""
 		// keyBytes -> The modified key in a bytes slice
-		keyBytes []byte = []byte(fmt.Sprintf(`|%s|~%d{`, key, len(data)))
+		keyBytes []byte = []byte(fmt.Sprintf(`%s:%d{`, key, len(data)))
 	)
 
 	// Check if the key already exists
