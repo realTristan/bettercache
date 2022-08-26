@@ -12,8 +12,8 @@ import "fmt"
 // It will return the removed value.
 func (cache *Cache) Remove(key string) string {
 	// Lock/Unlock the mutex
-	cache.Mutex.Lock()
-	defer cache.Mutex.Unlock()
+	cache.mutex.Lock()
+	defer cache.mutex.Unlock()
 
 	// Define Variables
 	var (
@@ -28,7 +28,7 @@ func (cache *Cache) Remove(key string) string {
 	)
 
 	// Iterate over the cache data
-	for i := 1; i < len(cache.Data); i++ {
+	for i := 1; i < len(cache.data); i++ {
 
 		// Check if the key is present and the current
 		// index is standing at that key
@@ -42,7 +42,7 @@ func (cache *Cache) Remove(key string) string {
 
 		// Check if the current index value is
 		// equal to the key's current index
-		if cache.Data[i] == keyBytes[index] {
+		if cache.data[i] == keyBytes[index] {
 			if startIndex < 0 {
 				index++
 			}
@@ -51,25 +51,25 @@ func (cache *Cache) Remove(key string) string {
 			index = 0
 		}
 		// Check if current index is the start of a map
-		if cache.Data[i] == '{' {
+		if cache.data[i] == '{' {
 
 			// Make sure the startIndex has been established
 			// and that the datalength is currently zero
 			if startIndex > 0 && len(dataLength) == 0 {
-				dataLength = cache.Data[startIndex-1 : i]
+				dataLength = cache.data[startIndex-1 : i]
 			}
 		} else
 
 		// Check if the current index is the end of the map
-		if cache.Data[i] == '}' && startIndex > 0 {
+		if cache.data[i] == '}' && startIndex > 0 {
 
 			// Check if the current index is the end of the data
 			if fmt.Sprint(i-startIndex-2) == string(dataLength) {
 				// Remove the value
-				cache.Data = append(cache.Data[:startIndex-(len(keyBytes)+1)], cache.Data[i+1:]...)
+				cache.data = append(cache.data[:startIndex-(len(keyBytes)+1)], cache.data[i+1:]...)
 
 				// Return the value removed
-				return string(cache.Data[startIndex+2 : i])
+				return string(cache.data[startIndex+2 : i])
 			}
 			// Reset the data length variable
 			dataLength = []byte{}

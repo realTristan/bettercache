@@ -10,12 +10,12 @@ import (
 // a json map with the key's value.
 func (cache *Cache) Get(key string) string {
 	// Lock/Unlock the mutex
-	cache.Mutex.RLock()
-	defer cache.Mutex.RUnlock()
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
 
 	// Make sure the cache contains the provided key first
 	var keyBytes []byte = append([]byte(key), ':')
-	if !bytes.Contains(cache.Data, keyBytes) {
+	if !bytes.Contains(cache.data, keyBytes) {
 		return ""
 	}
 
@@ -30,7 +30,7 @@ func (cache *Cache) Get(key string) string {
 	)
 
 	// Iterate over the cache data
-	for i := 1; i < len(cache.Data); i++ {
+	for i := 1; i < len(cache.data); i++ {
 		// Check if the key is present and the current
 		// index is standing at that key
 		if index == len(keyBytes) {
@@ -43,7 +43,7 @@ func (cache *Cache) Get(key string) string {
 
 		// Check if the current index value is
 		// equal to the keyBytes's current index
-		if cache.Data[i] == keyBytes[index] {
+		if cache.data[i] == keyBytes[index] {
 			// Make sure the startIndex has been established
 			if startIndex < 0 {
 				index++
@@ -54,22 +54,22 @@ func (cache *Cache) Get(key string) string {
 		}
 
 		// Check if current index is the start of a map
-		if cache.Data[i] == '{' {
+		if cache.data[i] == '{' {
 
 			// Make sure the startIndex has been established
 			// and that the datalength is currently zero
 			if startIndex > 0 && len(dataLength) == 0 {
-				dataLength = cache.Data[startIndex-1 : i]
+				dataLength = cache.data[startIndex-1 : i]
 			}
 		} else
 
 		// Check if the current index is the end of the map
-		if cache.Data[i] == '}' && startIndex > 0 {
+		if cache.data[i] == '}' && startIndex > 0 {
 
 			// Check if the current index is the end of the data
 			if fmt.Sprint(i-startIndex-2) == string(dataLength) {
 				// Return the data
-				return string(cache.Data[startIndex+2 : i])
+				return string(cache.data[startIndex+2 : i])
 			}
 			// Reset the data length variable
 			dataLength = []byte{}
