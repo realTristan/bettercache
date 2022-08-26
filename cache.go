@@ -150,16 +150,16 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		Result []string
 		// Track the length of the data
 		dataLength = []byte{}
-	)
 
-	// Check if strict mode is enabled
-	// If true, convert the temp cache to lowercase
-	isStrictMode := func() []byte {
-		if !TS.StrictMode {
-			return bytes.ToLower(cache.Data)
+		// Check if strict mode is enabled
+		// If true, convert the temp cache to lowercase
+		isStrictMode = func() []byte {
+			if !TS.StrictMode {
+				return bytes.ToLower(cache.Data)
+			}
+			return cache.Data
 		}
-		return cache.Data
-	}
+	)
 
 	// Iterate over the lowercase cache string
 	for i := 1; i < len(cache.Data); i++ {
@@ -219,8 +219,11 @@ func (cache *Cache) Get(key string) string {
 		// Track the length of the data
 		dataLength = []byte{}
 	)
-	// Iterate over the lowercase cache string
+
+	// Iterate over the cache data
 	for i := 1; i < len(cache.Data); i++ {
+		// Check if the key is present and the current
+		// index is standing at that key
 		if index == len(newKey) {
 			startIndex = i + 1
 			index = 0
@@ -238,13 +241,11 @@ func (cache *Cache) Get(key string) string {
 			}
 		} else
 		// Check if the current index is the end of the map
-		if cache.Data[i] == '}' {
-			if startIndex > 0 {
-				if fmt.Sprint(i-startIndex-2) == string(dataLength) {
-					return string(cache.Data[startIndex+2 : i])
-				}
-				dataLength = []byte{}
+		if cache.Data[i] == '}' && startIndex > 0 {
+			if fmt.Sprint(i-startIndex-2) == string(dataLength) {
+				return string(cache.Data[startIndex+2 : i])
 			}
+			dataLength = []byte{}
 		}
 	}
 	// Return empty string
@@ -260,7 +261,6 @@ func (cache *Cache) Get(key string) string {
 //
 // It will return the removed value
 func (cache *Cache) Remove(key string) string {
-	// Set the new key
 	key = fmt.Sprintf(`|%s|:~`, key)
 
 	// Lock/Unlock the mutex
@@ -276,7 +276,8 @@ func (cache *Cache) Remove(key string) string {
 		// Track the length of the data
 		dataLength = []byte{}
 	)
-	// Iterate over the lowercase cache string
+
+	// Iterate over the cache data
 	for i := 1; i < len(cache.Data); i++ {
 		// Check if the key is present and the current
 		// index is standing at that key
@@ -299,17 +300,15 @@ func (cache *Cache) Remove(key string) string {
 		} else
 
 		// Check if the current index is the end of the map
-		if cache.Data[i] == '}' {
-			if startIndex > 0 {
-				// Check if the current index equals the length of the data
-				if fmt.Sprint(i-startIndex-2) == string(dataLength) {
-					// Remove the value
-					cache.Data = append(cache.Data[:startIndex-(len(key)+1)], cache.Data[i+1:]...)
-					// Return the value removed
-					return string(cache.Data[startIndex+2 : i])
-				}
-				dataLength = []byte{}
+		if cache.Data[i] == '}' && startIndex > 0 {
+			// Check if the current index equals the length of the data
+			if fmt.Sprint(i-startIndex-2) == string(dataLength) {
+				// Remove the value
+				cache.Data = append(cache.Data[:startIndex-(len(key)+1)], cache.Data[i+1:]...)
+				// Return the value removed
+				return string(cache.Data[startIndex+2 : i])
 			}
+			dataLength = []byte{}
 		}
 	}
 	// Return empty string
