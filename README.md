@@ -93,7 +93,7 @@ func (cache *Cache) Set(key string, data string) string {}
 
 // The Get() function read locks then read unlocks
 // the cache data to ensure safety before returning
-// a json map with the key's value
+// the key's value
 func (cache *Cache) Get(key string) string {}
 
 // The Remove() function locks then unlocks the
@@ -118,6 +118,10 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
 // The Show() function returns the cache as a string
 func (cache *Cache) Show() string {}
 
+// The ShowBytes() function returns the cache as
+// an array of bytes
+func (cache *Cache) ShowBytes() string {}
+
 // The Exists() function returns whether the
 // provided key exists in the cache
 func (cache *Cache) Exists(key string) bool {}
@@ -134,9 +138,6 @@ func (cache *Cache) Expire(key string, _time time.Duration) {}
 // data. Make sure to use this function when
 // clearing the cache!
 func (cache *Cache) Flush() {}
-
-// The ShowBytes() function returns the cache bytes
-func (cache *Cache) ShowBytes() []byte {}
 
 ```
 
