@@ -9,7 +9,7 @@ import "fmt"
 // once the key is found it'll search for it's closing
 // bracket then remove the key from the cache bytes
 //
-// It will return the removed value
+// It will return the removed value.
 func (cache *Cache) Remove(key string) string {
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()

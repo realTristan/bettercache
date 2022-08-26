@@ -7,7 +7,7 @@ import (
 
 // The Get() function read locks then read unlocks
 // the cache data to ensure safety before returning
-// a json map with the key's value
+// a json map with the key's value.
 func (cache *Cache) Get(key string) string {
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
