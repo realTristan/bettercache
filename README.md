@@ -43,9 +43,9 @@ func main() {
 
     // Full Text Search for the key's contents
     var res []string = Cache.FullTextSearch(cache.TextSearch{
-        Limit:      -1,                 // No limit
-        Query:      []byte("tristan"),  // Search for "tristan"
-        StrictMode: false,              // Ignore CAPS
+        limit:      -1,                 // No limit
+        query:      []byte("tristan"),  // Search for "tristan"
+        strictMode: false,              // Ignore CAPS
 	})
     fmt.Println(res)
 
@@ -63,23 +63,34 @@ func main() {
 /* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
 /* Limit: int -> The number of results to return						*/
 type TextSearch struct {
-	Query      []byte
-	StrictMode bool
-	Limit      int
+	query      []byte
+	strictMode bool
+	limit      int
 }
 
-// The Cache struct contains two primary keys
+// The Cache struct contains three primary keys
 /* Data: []byte -> The Cache Data in Bytes						 	 */
 /* Mutex: *sync.Mutex -> Used for locking/unlocking the data 	 	 */
+/* MaxSize int -> The cache max size 								 */
 type Cache struct {
-	Data  []byte
-	Mutex *sync.RWMutex
+	data    []byte
+	mutex   *sync.RWMutex
+	maxSize int
 }
 
 // The Init() function creates the Cache
 // object depending on what was entered for
 // the size of the cache
 func Init(size int) *Cache {}
+
+// The FullTextSearch() function iterates through the cache data
+// and returns the json value of a key.
+// This value contains the Query defined in the provided
+// TextSearch object
+//
+// To ensure safety, the cache data is locked then unlocked once
+// no longer being used
+func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
 
 // The Set() function sets the value for the
 // provided key inside the cache.
@@ -104,15 +115,6 @@ func (cache *Cache) Get(key string) string {}
 //
 // It will return the removed value
 func (cache *Cache) Remove(key string) string {}
-
-// The FullTextSearch() function iterates through the cache data
-// and returns the json value of a key.
-// This value contains the Query defined in the provided
-// TextSearch object
-//
-// To ensure safety, the cache data is locked then unlocked once
-// no longer being used
-func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
 
 // The Show() function returns the cache as a string
 func (cache *Cache) Show() string {}
