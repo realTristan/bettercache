@@ -65,7 +65,7 @@ func Init(size int) *Cache {
 
 // The serialize() function covnerts the byte cache into
 // a map that can be used for reading keys, deleting keys, etc.
-func (cache *Cache) serialize() map[string]map[string]string {
+func (cache *Cache) serialize() map[string]string {
 	// Convert the byte cache into a json
 	// serializable string
 	var c = []byte{'{'}
@@ -73,7 +73,7 @@ func (cache *Cache) serialize() map[string]map[string]string {
 	c = append(c, '}')
 
 	// Unmarshal the serialized cache
-	var tmp map[string]map[string]string
+	var tmp map[string]string
 	json.Unmarshal(c, &tmp)
 
 	// Return the map
@@ -116,29 +116,6 @@ func (cache *Cache) Flush() {
 	cache.Data = []byte{'*'}
 }
 
-// The SerializeData() function takes all the cache data
-// and adds it's key's values to it's own map
-//
-// Example: {"key1": {"a": "b", "1": "2"}}
-// Will be converted to: {"a": "b", "1", "2"}
-func (cache *Cache) SerializeData() map[string]string {
-	// Define variables
-	var (
-		// res -> Result map
-		res map[string]string = make(map[string]string)
-		// _cache -> Serialized cache
-		_cache = cache.serialize()
-	)
-	// Iterate over the serialized cache
-	for _, v := range _cache {
-		for k, _v := range v {
-			res[k] = _v
-		}
-	}
-	// Return the result
-	return res
-}
-
 // The DumpBytes() function returns the cache
 // bytes. Use the DumpData() function for returning
 // the actual map
@@ -157,7 +134,7 @@ func (cache *Cache) DumpJson() string {
 // The DumpData() function returns the serialized
 // cache map. Use the DumpData() function for returning
 // the cache bytes
-func (cache *Cache) DumpData() map[string]map[string]string {
+func (cache *Cache) DumpData() map[string]string {
 	return cache.serialize()
 }
 
