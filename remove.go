@@ -15,7 +15,7 @@ func (cache *Cache) Remove(key string) string {
 	cache.Mutex.Lock()
 	defer cache.Mutex.Unlock()
 
-	// Set the new key
+	// Change the key to a modified version
 	key = fmt.Sprintf(`|%s|:~`, key)
 
 	// Define Variables

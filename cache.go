@@ -2,6 +2,7 @@ package main
 
 // Import modules
 import (
+	"bytes"
 	"fmt"
 	"sync"
 	"time"
@@ -55,7 +56,7 @@ func Init(size int) *Cache {
 // No read lock/unlock because this function isn't
 // as heavy as the ones that do utilize the read locks
 func (cache *Cache) Exists(key string) bool {
-	return len(cache.Get(key)) > 0
+	return bytes.Contains(cache.Data, []byte(fmt.Sprintf(`|%s|:~`, key)))
 }
 
 // The GetByteSize() function returns the current size of the
@@ -115,10 +116,15 @@ func (cache *Cache) Set(key string, data string) string {
 	// Define Variables
 	var (
 		// removedValue -> The previous value removed
-		removedValue string = cache.Remove(key)
+		removedValue string = ""
 		// keyBytes -> The modified key in a bytes slice
 		keyBytes []byte = []byte(fmt.Sprintf(`|%s|:~%d{`, key, len(data)))
 	)
+
+	// Check if the key already exists
+	if bytes.Contains(cache.Data, []byte(key)) {
+		removedValue = cache.Remove(key)
+	}
 
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()

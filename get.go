@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 // The Get() function read locks then read unlocks
 // the cache data to ensure safety before returning
@@ -10,8 +13,11 @@ func (cache *Cache) Get(key string) string {
 	cache.Mutex.RLock()
 	defer cache.Mutex.RUnlock()
 
-	// Set the new key
-	var newKey string = fmt.Sprintf(`|%s|:~`, key)
+	// Make sure the cache contains the provided key first
+	var newKey []byte = []byte(fmt.Sprintf(`|%s|:~`, key))
+	if !bytes.Contains(cache.Data, newKey) {
+		return ""
+	}
 
 	// Define Variables
 	var (

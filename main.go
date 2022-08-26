@@ -10,21 +10,24 @@ func main() {
 	// Init the cache
 	var Cache *Cache = Init(-1) // -1 -> Unlimited Size
 
+	startTime := time.Now()
 	// Set cache keys
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 10000; i++ {
 		Cache.Set(fmt.Sprintf("key%d", i), fmt.Sprintf("my name is \"tristan%d\"", i))
 	}
+
+	fmt.Println(time.Since(startTime))
 	// Track speed
-	startTime := time.Now()
+	startTime = time.Now()
 
 	// Get the text search result
-	res := Cache.FullTextSearch(TextSearch{
+	Cache.FullTextSearch(TextSearch{
 		Limit:      -1,
 		Query:      []byte("Tristan"),
 		StrictMode: false,
 	})
 	// Print result
-	fmt.Printf("Full Text Search -> (%v): %v\n\n", time.Since(startTime), res)
+	fmt.Printf("Full Text Search -> (%v): %v\n\n", time.Since(startTime), nil)
 
 	// Test setting a duplicate key
 	startTime = time.Now()
