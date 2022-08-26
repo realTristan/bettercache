@@ -2,60 +2,87 @@ package cache
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
-// Function to test the Set() function
-func (cache *Cache) TestSet() {
-	// Track speed
-	startTime := time.Now()
-
-	// Add key1 to the cache
-	cache.Set("key1", "my name is \"tristan\"")
-	// Print the result
-	fmt.Printf("\nTest: Set() -> (%v)\n", time.Since(startTime))
-}
-
-// Function to test the Remove() function
-func (cache *Cache) TestRemove() {
-	// Add key2 to the map
-	cache.Set("key2", "my name is \"tristan\"")
-	// Track speed
-	startTime := time.Now()
-	// Remove key2
-	cache.Remove("key2")
-	// Print result
-	fmt.Printf("\nTest: Remove() -> (%v)\n", time.Since(startTime))
-}
-
-// Function to Test the Get() function
-func (cache *Cache) TestGet() {
-	// Add key1 to the map
-	for i := 0; i < 1; i++ {
-		cache.Set("key1", "my name is \"tristan\"")
+// The TestSet() function loops by the provided
+// amount of iterations and creates a key and value
+// inside the cache.
+//
+// Using the provided value size, it will modify
+// how large the value is.
+func (cache *Cache) TestSet(amountOfKeys int, valueSize int) {
+	var startTime time.Time = time.Now()
+	for i := 0; i < amountOfKeys; i++ {
+		cache.Set(fmt.Sprintf("key%d", i), strings.Repeat("v", valueSize))
 	}
-	// Track speed
-	startTime := time.Now()
-	// Get the key
-	var data = cache.Get("key1")
-	// Print result
-	fmt.Printf("\nTest: Get() -> (%v): (%v)\n", time.Since(startTime), data)
+	fmt.Printf("\nTest: Set(%d, %d) -> (%v)\n",
+		amountOfKeys, valueSize, time.Since(startTime))
 }
 
-// Function to test the FullTextSearch() function
-func (cache *Cache) TestFullTextSearch() {
-	for i := 0; i < 2; i++ {
-		cache.Set("key2", "my name is \"tristan2\"")
+// The TestRemove() function tests the performance of the
+// cache.Remove() function. It loops by the provided amount
+// of sets to add keys to the cache
+//
+// After the keys are added, it then iterates over the cache
+// and loops by the provided amount of removes
+// and removes each key from the cache
+func (cache *Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
+	for i := 0; i < amountOfSets; i++ {
+		cache.Set(fmt.Sprintf("key%d", i), fmt.Sprintf("value%d", i))
 	}
-	// Track speed
-	startTime := time.Now()
+	// Track the speed of the remove function
+	var startTime time.Time = time.Now()
+	for i := 0; i < amountOfRemoves; i++ {
+		cache.Remove(fmt.Sprintf("key%d", i))
+	}
+	fmt.Printf("\nTest: Remove(%d, %d) -> (%v)\n",
+		amountOfSets, amountOfRemoves, time.Since(startTime))
+}
 
-	// Get the text search result
-	res := cache.FullTextSearch(TextSearch{
-		Limit:      -1,
-		Query:      []byte("tristan"),
-		StrictMode: false,
+// The TestGet() function is used to test the performance of the
+// Get() function. It loops by the amount of sets to add keys to
+// the cache with the value size of the setValueSize parameter
+//
+// After the keys and values are set, it then loops over the cache
+// by the amount of gets
+func (cache *Cache) TestGet(amountOfSets int, setValueSize int, amountOfGets int) {
+	for i := 0; i < amountOfSets; i++ {
+		cache.Set(fmt.Sprintf("key%d", i), strings.Repeat("v", setValueSize))
+	}
+	var startTime time.Time = time.Now()
+	for i := 0; i < amountOfGets; i++ {
+		cache.Get(fmt.Sprintf("key%d", i))
+	}
+	// Print result
+	fmt.Printf("\nTest: Get(%d, %d, %d) -> (%v)\n",
+		amountOfSets, setValueSize, amountOfGets, time.Since(startTime))
+}
+
+// The TestFullTextSearch() function is used to test the performance
+// of the cache full text search. It loops by the amount of sets to
+// add keys to the cache with the value size of the setValueSize parameter
+//
+// After the keys and values are set, it then performs the full text search
+// and whether the printResult parameter is set to true or not, it will
+// print the result string.
+func (cache *Cache) TestFullTextSearch(amountOfSets int, setValueSize int, printResult bool) {
+	for i := 0; i < amountOfSets; i++ {
+		cache.Set(fmt.Sprintf("key%d", i), strings.Repeat("v", setValueSize))
+	}
+	var startTime time.Time = time.Now()
+
+	// Perform the full text search
+	var result []string = cache.FullTextSearch(TextSearch{
+		limit:      -1,
+		query:      []byte("tristan"),
+		strictMode: false,
 	})
-	// Print result
-	fmt.Printf("Test: FullTextSearch() -> (%v): %v\n\n", time.Since(startTime), res)
+	// Print the results
+	if printResult {
+		fmt.Printf("Test: FullTextSearch [Result]: %v", result)
+	}
+	fmt.Printf("Test: FullTextSearch(%d, %d, %v) -> (%v)\n\n",
+		amountOfSets, setValueSize, printResult, time.Since(startTime))
 }
