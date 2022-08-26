@@ -10,15 +10,13 @@ func main() {
 	// Init the cache
 	var Cache *Cache = Init(-1) // -1 -> Unlimited Size
 
-	startTime := time.Now()
 	// Set cache keys
 	for i := 0; i < 1; i++ {
 		Cache.Set(fmt.Sprintf("key%d", i), fmt.Sprintf("my name is \"tristan%d\"", i))
 	}
 
-	fmt.Println(time.Since(startTime))
 	// Track speed
-	startTime = time.Now()
+	startTime := time.Now()
 
 	// Get the text search result
 	Cache.FullTextSearch(TextSearch{
