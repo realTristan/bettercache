@@ -1,4 +1,4 @@
-package main
+package cache
 
 import (
 	"fmt"
@@ -44,4 +44,6 @@ func main() {
 	startTime = time.Now()
 	c := Cache.Show()
 	fmt.Printf("Show Cache -> (%v): %v\n\n", time.Since(startTime), c)
+
+	// 2158161
 }

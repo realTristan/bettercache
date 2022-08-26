@@ -1,4 +1,4 @@
-package main
+package cache
 
 // The TextSearch struct contains three primary keys
 /* Query: []byte -> What to query for									*/
