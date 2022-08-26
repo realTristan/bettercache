@@ -3,7 +3,6 @@ package main
 // Import modules
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -65,41 +64,16 @@ func Init(size int) *Cache {
 	return c
 }
 
-// The serialize() function covnerts the byte cache into
-// a map that can be used for reading keys, deleting keys, etc.
-func (cache *Cache) serialize() map[string]string {
-	// Convert the byte cache into a json
-	// serializable string
-	var c = []byte{'{'}
-	c = append(c, cache.Data[1:len(cache.Data)-1]...)
-	c = append(c, '}')
-
-	// Unmarshal the serialized cache
-	var tmp map[string]string
-	json.Unmarshal(c, &tmp)
-
-	// Return the map
-	return tmp
-}
-
 // The Exists() function returns whether the
 // provided key exists in the cache
 func (cache *Cache) Exists(key string) bool {
-	var _, i = cache.serialize()[key]
-	return i
+	return len(cache.Get(key)) > 0
 }
 
 // The GetByteSize() function returns the current size of the
 // cache bytes and the cache maximum size
 func (cache *Cache) GetByteSize() (int, int) {
 	return len(cache.Data), MaxCacheSize
-}
-
-// The GetMapSize() function returns the
-// amount of keys in the cache map and the cache
-// maximum size
-func (cache *Cache) GetMapSize() (int, int) {
-	return len(cache.serialize()), MaxCacheSize
 }
 
 // The Expire() function removes the provided key
@@ -122,7 +96,7 @@ func (cache *Cache) Flush() {
 // bytes. Use the DumpData() function for returning
 // the actual map
 func (cache *Cache) DumpBytes() []byte {
-	return cache.Data
+	return cache.Data[1 : len(cache.Data)-1]
 }
 
 // The DumpJson() function returns the cache
@@ -131,23 +105,6 @@ func (cache *Cache) DumpJson() string {
 	return string(
 		append([]byte{'{'},
 			append(cache.Data[1:len(cache.Data)-1], '}')...))
-}
-
-// The DumpData() function returns the serialized
-// cache map. Use the DumpData() function for returning
-// the cache bytes
-func (cache *Cache) DumpData() map[string]string {
-	return cache.serialize()
-}
-
-// The GetKeys() function returns all the keys
-// inside the cache
-func (cache *Cache) GetKeys() []string {
-	var res []string
-	for k := range cache.serialize() {
-		res = append(res, k)
-	}
-	return res
 }
 
 // The Set() function sets the value for the

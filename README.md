@@ -123,11 +123,6 @@ func (cache *Cache) Exists(key string) bool {}
 // cache bytes and the cache maximum size
 func (cache *Cache) GetByteSize() (int, int) {}
 
-// The GetMapSize() function returns the
-// amount of keys in the cache map and the cache
-// maximum size
-func (cache *Cache) GetMapSize() (int, int) {}
-
 // The Expire() function removes the provided key
 // from the cache after the given time
 func (cache *Cache) Expire(key string, _time time.Duration) {}
@@ -146,14 +141,6 @@ func (cache *Cache) DumpBytes() []byte {}
 // as a json map.
 func (cache *Cache) DumpJson() string {}
 
-// The DumpData() function returns the serialized
-// cache map. Use the DumpData() function for returning
-// the cache bytes
-func (cache *Cache) DumpData() map[string]string {}
-
-// The GetKeys() function returns all the keys
-// inside the cache
-func (cache *Cache) GetKeys() []string {}
 ```
 
 # License
