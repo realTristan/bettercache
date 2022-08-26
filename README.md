@@ -59,6 +59,30 @@ func main() {
 # Functions
 
 ```go
+// The Set() function sets the value for the
+// provided key inside the cache.
+//
+// Example: {"key1": "my name is tristan!"},
+//
+// Returns the removed value of the previously
+// defined key
+func (cache *Cache) Set(key string, data string) string {}
+
+// The Get() function read locks then read unlocks
+// the cache data to ensure safety before returning
+// a json map with the key's value
+func (cache *Cache) Get(key string) string {}
+
+// The Remove() function locks then unlocks the
+// cache data to ensure safety before iterating through
+// the cache bytes to look for the provided key
+//
+// once the key is found it'll search for it's closing
+// bracket then remove the key from the cache bytes
+//
+// It will return the removed value
+func (cache *Cache) Remove(key string) string {}
+
 // The Exists() function returns whether the
 // provided key exists in the cache
 func (cache *Cache) Exists(key string) bool {}
@@ -99,15 +123,6 @@ func (cache *Cache) DumpData() map[string]string {}
 // inside the cache
 func (cache *Cache) GetKeys() []string {}
 
-// The Set() function sets the value for the
-// provided key inside the cache.
-//
-// Example: {"key1": "my name is tristan!"},
-//
-// Returns the removed value of the previously
-// defined key
-func (cache *Cache) Set(key string, data string) string {}
-
 // The FullTextSearch() function iterates through the cache data
 // and returns the json value of a key.
 // This value contains the Query defined in the provided
@@ -116,21 +131,6 @@ func (cache *Cache) Set(key string, data string) string {}
 // To ensure safety, the cache data is locked then unlocked once
 // no longer being used
 func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
-
-// The Get() function read locks then read unlocks
-// the cache data to ensure safety before returning
-// a json map with the key's value
-func (cache *Cache) Get(key string) string {}
-
-// The Remove() function locks then unlocks the
-// cache data to ensure safety before iterating through
-// the cache bytes to look for the provided key
-//
-// once the key is found it'll search for it's closing
-// bracket then remove the key from the cache bytes
-//
-// It will return the removed value
-func (cache *Cache) Remove(key string) string {}
 ```
 
 # License
