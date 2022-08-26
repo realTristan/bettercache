@@ -45,7 +45,7 @@ func (cache *Cache) TestGet() {
 // Function to test the FullTextSearch() function
 func (cache *Cache) TestFullTextSearch() {
 	for i := 0; i < 2; i++ {
-		cache.Set("key2", "my name is \"tristan\"")
+		cache.Set("key2", "my name is \"tristan2\"")
 	}
 	// Track speed
 	startTime := time.Now()
