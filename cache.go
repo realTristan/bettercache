@@ -121,11 +121,20 @@ func (cache *Cache) Set(key string, data string) string {
 		keyBytes []byte = []byte(fmt.Sprintf(`%s:%d{`, key, len(data)))
 	)
 
-	// Check if the key already exists
-	if bytes.Contains(cache.Data, []byte(key)) {
+	// I put this in it's own function so that it can
+	// use defer for unlocking the mutex.
+	// This is best because if there's any errors, they
+	// won't prevent the mutex from unlocking
+	if func() bool {
+		cache.Mutex.RLock()
+		defer cache.Mutex.RUnlock()
+
+		// Check if the key already exists
+		return bytes.Contains(cache.Data, []byte(key))
+	}() {
+		// Remove the previous key
 		removedValue = cache.Remove(key)
 	}
-
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
 	defer cache.Mutex.Unlock()
