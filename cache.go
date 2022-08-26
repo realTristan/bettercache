@@ -8,19 +8,15 @@ import (
 	"time"
 )
 
-// The Cache struct contains two primary keys
+// The Cache struct contains three primary keys
 /* Data: []byte -> The Cache Data in Bytes						 	 */
 /* Mutex: *sync.Mutex -> Used for locking/unlocking the data 	 	 */
+/* MaxSize int -> The cache max size 								 */
 type Cache struct {
-	Data  []byte
-	Mutex *sync.RWMutex
+	data    []byte
+	mutex   *sync.RWMutex
+	maxSize int
 }
-
-// Global Variables
-var (
-	// MaxCacheSize -> The size of the cache
-	MaxCacheSize int
-)
 
 // The initData() function returns a the cache
 // byte slice depending on the provided size
@@ -40,13 +36,11 @@ func initData(size int) []byte {
 // object depending on what was entered for
 // the size of the cache
 func Init(size int) *Cache {
-	// Set global variables
-	MaxCacheSize = size
-
 	// Return the new cache
 	return &Cache{
-		Data:  initData(size),
-		Mutex: &sync.RWMutex{},
+		data:    initData(size),
+		mutex:   &sync.RWMutex{},
+		maxSize: size,
 	}
 }
 
@@ -65,7 +59,7 @@ func (cache *Cache) Exists(key string) bool {
 // No read lock/unlock because this function isn't
 // as heavy as the ones that do utilize the read locks
 func (cache *Cache) GetByteSize() (int, int) {
-	return len(cache.Data), MaxCacheSize
+	return len(cache.data), cache.maxSize
 }
 
 // The Expire() function removes the provided key
@@ -82,11 +76,11 @@ func (cache *Cache) Expire(key string, _time time.Duration) {
 // data. Make sure to use this function when
 // clearing the cache!
 func (cache *Cache) Flush() {
-	cache.Mutex.Lock()
-	defer cache.Mutex.Unlock()
+	cache.mutex.Lock()
+	defer cache.mutex.Unlock()
 
 	// Reset the cache data
-	cache.Data = []byte{'*'}
+	cache.data = []byte{'*'}
 }
 
 // The ShowBytes() function returns the cache bytes
@@ -94,7 +88,7 @@ func (cache *Cache) Flush() {
 // No read lock/unlock because this function isn't
 // as heavy as the ones that do utilize the read locks
 func (cache *Cache) ShowBytes() []byte {
-	return cache.Data
+	return cache.data
 }
 
 // The Show() function returns the cache as a string
@@ -102,7 +96,7 @@ func (cache *Cache) ShowBytes() []byte {
 // No read lock/unlock because this function isn't
 // as heavy as the ones that do utilize the read locks
 func (cache *Cache) Show() string {
-	return string(cache.Data)
+	return string(cache.data)
 }
 
 // The Set() function sets the value for the
@@ -126,22 +120,22 @@ func (cache *Cache) Set(key string, data string) string {
 	// This is best because if there's any errors, they
 	// won't prevent the mutex from unlocking
 	if func() bool {
-		cache.Mutex.RLock()
-		defer cache.Mutex.RUnlock()
+		cache.mutex.RLock()
+		defer cache.mutex.RUnlock()
 
 		// Check if the key already exists
-		return bytes.Contains(cache.Data, []byte(key))
+		return bytes.Contains(cache.data, []byte(key))
 	}() {
 		// Remove the previous key
 		removedValue = cache.Remove(key)
 	}
 	// Lock/Unlock the mutex
-	cache.Mutex.Lock()
-	defer cache.Mutex.Unlock()
+	cache.mutex.Lock()
+	defer cache.mutex.Unlock()
 
 	// Set the byte cache value
-	cache.Data = append(
-		cache.Data, append(keyBytes, append([]byte(data), '}')...)...)
+	cache.data = append(
+		cache.data, append(keyBytes, append([]byte(data), '}')...)...)
 
 	// Return the removed value
 	return removedValue
