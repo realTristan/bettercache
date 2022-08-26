@@ -53,7 +53,9 @@ func _Init_(size int) *Cache {
 
 }
 
-// Initialize Cache
+// The Init() function creates the Cache
+// object depending on what was entered for
+// the size of the cache
 func Init(size int) *Cache {
 	// Set global variables
 	MaxCacheSize = size

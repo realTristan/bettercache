@@ -59,6 +59,29 @@ func main() {
 # Functions
 
 ```go
+// The TextSearch struct contains three primary keys
+/* Query: []byte -> What to query for									*/
+/* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
+/* Limit: int -> The number of results to return						*/
+type TextSearch struct {
+	Query      []byte
+	StrictMode bool
+	Limit      int
+}
+
+// The Cache struct contains two primary keys
+/* Data: []byte -> The Cache Data in Bytes						 	 */
+/* Mutex: *sync.Mutex -> Used for locking/unlocking the data 	 	 */
+type Cache struct {
+	Data  []byte
+	Mutex *sync.RWMutex
+}
+
+// The Init() function creates the Cache
+// object depending on what was entered for
+// the size of the cache
+func Init(size int) *Cache {}
+
 // The Set() function sets the value for the
 // provided key inside the cache.
 //
