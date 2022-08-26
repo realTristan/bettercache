@@ -142,27 +142,28 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 
 	// Define Variables
 	var (
-		// mapStart -> Track opening bracket
-		mapStart int = -1
-		// closeBracketCount -> Track closing brackets per map
-		closeBracketCount int = 0
 		// Result -> Array with all maps containing the query
 		Result []string
+		// mapStart -> Track opening bracket
+		mapStart int = -1
 		// Track the length of the data
 		dataLength = []byte{}
 
 		// Check if strict mode is enabled
 		// If true, convert the temp cache to lowercase
 		isStrictMode = func() []byte {
+			// Return the cache in lowercase
 			if !TS.StrictMode {
 				return bytes.ToLower(cache.Data)
 			}
+			// Return the cache as is
 			return cache.Data
 		}
 	)
 
 	// Iterate over the lowercase cache string
 	for i := 1; i < len(cache.Data); i++ {
+
 		// Break the loop if over the text search limit
 		if TS.Limit > 0 && len(Result) >= TS.Limit {
 			break
@@ -170,26 +171,33 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 
 		// Check if current index is the start of a map
 		if cache.Data[i] == '{' {
+			// Make sure the map start has NOT been established
 			if mapStart == -1 {
 				mapStart = i
 			}
-			closeBracketCount++
-		}
-		// Check if current index is the start of a map
-		if cache.Data[i] == '{' {
+
+			// Get the length of the cache data
 			if len(dataLength) == 0 {
 				dataLength = cache.Data[mapStart-2 : i]
 			}
 		} else
+
 		// Check if the current index is the end of the map
 		if cache.Data[i] == '}' {
+
+			// Make sure the map start has been established
 			if mapStart > 0 {
+
 				// Check if the current data contains the query
 				if bytes.Contains(isStrictMode()[mapStart:i+1], TS.Query) {
+
 					// Append the data to the result array
 					Result = append(Result, strings.ReplaceAll(
 						string(cache.Data[mapStart+1:i]), "~|", ""))
 				}
+
+				// Reset the data length variable
+				// and the map start variable
 				dataLength = []byte{}
 				mapStart = -1
 			}
@@ -203,12 +211,12 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 // the cache data to ensure safety before returning
 // a json map with the key's value
 func (cache *Cache) Get(key string) string {
-	// Set the new key
-	var newKey string = fmt.Sprintf(`|%s|:~`, key)
-
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
 	defer cache.Mutex.RUnlock()
+
+	// Set the new key
+	var newKey string = fmt.Sprintf(`|%s|:~`, key)
 
 	// Define Variables
 	var (
@@ -225,26 +233,45 @@ func (cache *Cache) Get(key string) string {
 		// Check if the key is present and the current
 		// index is standing at that key
 		if index == len(newKey) {
+
+			// Set the starting index and reset the
+			// key's index variable
 			startIndex = i + 1
 			index = 0
-		} else if cache.Data[i] == newKey[index] {
+		} else
+
+		// Check if the current index value is
+		// equal to the newKey's current index
+		if cache.Data[i] == newKey[index] {
+			// Make sure the startIndex has been established
 			if startIndex < 0 {
 				index++
 			}
 		} else {
+			// Reset the index
 			index = 0
 		}
+
 		// Check if current index is the start of a map
 		if cache.Data[i] == '{' {
+
+			// Make sure the startIndex has been established
+			// and that the datalength is currently zero
 			if startIndex > 0 && len(dataLength) == 0 {
 				dataLength = cache.Data[startIndex-1 : i]
 			}
 		} else
+
 		// Check if the current index is the end of the map
 		if cache.Data[i] == '}' && startIndex > 0 {
+
+			// Check if the current index is the end of the data
 			if fmt.Sprint(i-startIndex-2) == string(dataLength) {
+
+				// Return the data
 				return string(cache.Data[startIndex+2 : i])
 			}
+			// Reset the data length variable
 			dataLength = []byte{}
 		}
 	}
@@ -261,11 +288,12 @@ func (cache *Cache) Get(key string) string {
 //
 // It will return the removed value
 func (cache *Cache) Remove(key string) string {
-	key = fmt.Sprintf(`|%s|:~`, key)
-
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
 	defer cache.Mutex.Unlock()
+
+	// Set the new key
+	key = fmt.Sprintf(`|%s|:~`, key)
 
 	// Define Variables
 	var (
@@ -279,21 +307,33 @@ func (cache *Cache) Remove(key string) string {
 
 	// Iterate over the cache data
 	for i := 1; i < len(cache.Data); i++ {
+
 		// Check if the key is present and the current
 		// index is standing at that key
 		if index == len(key) {
+
+			// Set the starting index and reset the
+			// key's index variable
 			startIndex = i + 1
 			index = 0
-		} else if cache.Data[i] == key[index] {
+		} else
+
+		// Check if the current index value is
+		// equal to the key's current index
+		if cache.Data[i] == key[index] {
 			if startIndex < 0 {
 				index++
 			}
 		} else {
+			// Reset the index
 			index = 0
 		}
 
 		// Check if current index is the start of a map
 		if cache.Data[i] == '{' {
+
+			// Make sure the startIndex has been established
+			// and that the datalength is currently zero
 			if startIndex > 0 && len(dataLength) == 0 {
 				dataLength = cache.Data[startIndex-1 : i]
 			}
@@ -301,13 +341,17 @@ func (cache *Cache) Remove(key string) string {
 
 		// Check if the current index is the end of the map
 		if cache.Data[i] == '}' && startIndex > 0 {
-			// Check if the current index equals the length of the data
+
+			// Check if the current index is the end of the data
 			if fmt.Sprint(i-startIndex-2) == string(dataLength) {
+
 				// Remove the value
 				cache.Data = append(cache.Data[:startIndex-(len(key)+1)], cache.Data[i+1:]...)
+
 				// Return the value removed
 				return string(cache.Data[startIndex+2 : i])
 			}
+			// Reset the data length variable
 			dataLength = []byte{}
 		}
 	}
