@@ -4,13 +4,9 @@
 Lightning Fast Caching System for Go.
 
 # About
-- The Full Text Search uses PURE Golang code. (Not a single external package is used)
+- Better Cache is a native golang caching system that uses an array of bytes for storing data. Because of this, we can perform lightning fast full text searches (within nanoseconds to milliseconds). The Full Text Search uses PURE Golang code, meaning not a single external package is used.
 
-- This project was primarily made for the full text search speeds. Although the .Get() and .Set() functions aren't as fast as using a regular map, they are still extremely fast and allow the full text search to be up to 1000x faster
-
-- Better Cache is an ultra fast caching system that uses an array of bytes for storing data instead of the very common map caching system. Because the data is stored in an array of bytes instead of a map, it enables lightning fast full text searches. (within microseconds to milliseconds)
-
-- Better Cache also uses solely native golang modules which makes it fast, lightweight and secure.
+- This project was primarily made for the full text search speeds. Because of this, the .Get(), .Set() and .Remove() functions should not be consistently used. For best usage, pre-set your cache at the start of your program.
 
 # Benchmarks
 
