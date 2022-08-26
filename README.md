@@ -83,6 +83,15 @@ func (cache *Cache) Get(key string) string {}
 // It will return the removed value
 func (cache *Cache) Remove(key string) string {}
 
+// The FullTextSearch() function iterates through the cache data
+// and returns the json value of a key.
+// This value contains the Query defined in the provided
+// TextSearch object
+//
+// To ensure safety, the cache data is locked then unlocked once
+// no longer being used
+func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
+
 // The Exists() function returns whether the
 // provided key exists in the cache
 func (cache *Cache) Exists(key string) bool {}
@@ -122,15 +131,6 @@ func (cache *Cache) DumpData() map[string]string {}
 // The GetKeys() function returns all the keys
 // inside the cache
 func (cache *Cache) GetKeys() []string {}
-
-// The FullTextSearch() function iterates through the cache data
-// and returns the json value of a key.
-// This value contains the Query defined in the provided
-// TextSearch object
-//
-// To ensure safety, the cache data is locked then unlocked once
-// no longer being used
-func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
 ```
 
 # License
