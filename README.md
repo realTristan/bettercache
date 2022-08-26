@@ -53,7 +53,6 @@ func main() {
     var removedKey string = Cache.Remove("key1")
     fmt.Println(removedKey)
 }
-
 ```
 
 # Functions
