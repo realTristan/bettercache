@@ -31,19 +31,19 @@ import (
 
 func main() {
     // Initialize the cache
-	var cache *cache.Cache = cache.Init(100) // 100 bytes
+	var Cache *cache.Cache = cache.Init(100) // 100 bytes
 
     // Add key1 to the cache
-    cache.Set("key1", map[string]string{
+    Cache.Set("key1", map[string]string{
 		"summary": "My name is \"Tristan\"",
 	})
 
     // Get key from the cache
-    var data = cache.Get("key1")
+    var data = Cache.Get("key1")
     fmt.Println(data)
 
     // Full Text Search for the key's contents
-	var res = cache.FullTextSearch(cache.TextSearch{
+	var res = Cache.FullTextSearch(Cache.TextSearch{
 		Limit:      -1,                 // No limit
 		Query:      []byte("tristan"),  // Search for "tristan"
 		StrictMode: false,              // Ignore CAPS
@@ -51,7 +51,7 @@ func main() {
     fmt.Println(res)
 
     // Remove key1 from the cache
-    cache.Remove("key1")
+    Cache.Remove("key1")
 }
 
 ```
@@ -59,24 +59,6 @@ func main() {
 # Functions
 
 ```go
-// The Set() function sets the value for the
-// provided key inside the cache.
-//
-// Example: key1: map[string]string{"1": "2"}
-func (cache *Cache) Set(key string, data map[string]string) {
-	// Lock/Unlock the mutex
-	cache.Mutex.Lock()
-	defer cache.Mutex.Unlock()
-
-	// Marhsal the data
-	var tmp, _ = json.Marshal(map[string]map[string]string{
-		key: data,
-	})
-	// Set the byte cache value
-	cache.Data = append(
-		cache.Data, append(tmp[1:len(tmp)-1], ',')...)
-}
-
 // The Exists() function returns whether the
 // provided key exists in the cache
 func (cache *Cache) Exists(key string) bool {
@@ -168,34 +150,40 @@ func (cache *Cache) GetKeys() []string {
 	return res
 }
 
-// The Remove() function locks then unlocks the
-// cache data to ensure safety before serializing the
-// byte cache into a map
+// The Set() function sets the value for the
+// provided key inside the cache.
 //
-// Once the cache is converted into a map, it deletes
-// the key from said map then re-converts the map into
-// a byte slice, setting the cache.Data to said slice
-func (cache *Cache) Remove(key string) {
+// Example: {"key1": "my name is tristan!"},
+//
+// Returns the removed value of the previously
+// defined key
+func (cache *Cache) Set(key string, data string) string {
+	var removedValue string = cache.Remove(key)
+
+	// Set the new key
+	key = fmt.Sprintf(`"%s":{`, key)
+
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
 	defer cache.Mutex.Unlock()
 
-	// Get the cache map and delete the key
-	var _cache = cache.serialize()
-	delete(_cache, key)
+	// Set the byte cache value
+	cache.Data = append(
+		cache.Data, append([]byte(key),
+			append([]byte(data), []byte{'}', ','}...)...)...)
 
-	// Set the Cache Data
-	var data, _ = json.Marshal(_cache)
-	cache.Data = append([]byte{'*'}, data[1:]...)
+	// Return the removed value
+	return removedValue
 }
 
 // The FullTextSearch() function iterates through the cache data
-// and returns the value of a key. This value contains the Query
-// defined in the provided TextSearch object
+// and returns the json value of a key.
+// This value contains the Query defined in the provided
+// TextSearch object
 //
 // To ensure safety, the cache data is locked then unlocked once
 // no longer being used
-func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
+func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
 	defer cache.Mutex.RUnlock()
@@ -209,7 +197,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 		// closeBracketCount -> Track closing brackets per map
 		closeBracketCount int = 0
 		// Result -> Array with all maps containing the query
-		Result []map[string]string
+		Result []string
 		// Set the temp cache
 		TempCache []byte = cache.Data
 	)
@@ -221,7 +209,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 	}
 
 	// Iterate over the lowercase cache string
-	for i := 0; i < len(TempCache); i++ {
+	for i := 1; i < len(TempCache); i++ {
 		// Break the loop if over the text search limit
 		if TS.Limit > 0 && len(Result) >= TS.Limit {
 			break
@@ -229,10 +217,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 
 		// Check whether the current index is
 		// in a string or not
-		if i > 0 {
-			if TempCache[i] == '"' && TempCache[i-1] != '\\' {
-				inString = !inString
-			}
+		if TempCache[i] == '"' && TempCache[i-1] != '\\' {
+			inString = !inString
 		}
 
 		// Check if current index is the start of a map
@@ -248,12 +234,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 			if closeBracketCount == 1 {
 				// Check if the map contains the query string
 				if bytes.Contains(TempCache[mapStart:i+1], TS.Query) {
-					// Convert the string to a map
-					var data map[string]string
-					json.Unmarshal(cache.Data[mapStart:i+1], &data)
-
-					// Append the map to the result array
-					Result = append(Result, data)
+					// Append the json map to the result array
+					Result = append(Result, string(cache.Data[mapStart:i+1]))
 				}
 				// Reset indexing variables
 				closeBracketCount = 0
@@ -288,14 +270,13 @@ func (cache *Cache) Get(key string) string {
 		index int = 0
 	)
 	// Iterate over the lowercase cache string
-	for i := 0; i < len(cache.Data); i++ {
+	for i := 1; i < len(cache.Data); i++ {
 		// Check whether the current index is
 		// in a string or not
-		if i > 0 {
-			if cache.Data[i] == '"' && cache.Data[i-1] != '\\' {
-				inString = !inString
-			}
+		if cache.Data[i] == '"' && cache.Data[i-1] != '\\' {
+			inString = !inString
 		}
+
 		// Check if current index is the start of a map
 		if index == len(key) {
 			startIndex = i - 1
@@ -311,6 +292,66 @@ func (cache *Cache) Get(key string) string {
 		if cache.Data[i] == '}' && !inString {
 			if startIndex > 0 {
 				return string(append(cache.Data[startIndex:i], '}'))
+			}
+		}
+	}
+	// Return empty string
+	return ""
+}
+
+// The Remove() function locks then unlocks the
+// cache data to ensure safety before iterating through
+// the cache bytes to look for the provided key
+//
+// once the key is found it'll search for it's closing
+// bracket then remove the key from the cache bytes
+//
+// It will return the removed value
+func (cache *Cache) Remove(key string) string {
+	// Set the new key
+	key = fmt.Sprintf(`"%s":{`, key)
+
+	// Lock/Unlock the mutex
+	cache.Mutex.RLock()
+	defer cache.Mutex.RUnlock()
+
+	// Define Variables
+	var (
+		// inString -> Track whether bracket is inside a string
+		inString bool = false
+		// startIndex -> Track the start of the key value
+		startIndex int = -1
+		// index -> Track the key indexes
+		index int = 0
+	)
+	// Iterate over the lowercase cache string
+	for i := 1; i < len(cache.Data); i++ {
+		// Check whether the current index is
+		// in a string or not
+		if cache.Data[i] == '"' && cache.Data[i-1] != '\\' {
+			inString = !inString
+		}
+
+		// Check if current index is the start of a map
+		if index == len(key) {
+			startIndex = i - len(key)
+			index = 0
+		} else if cache.Data[i] == key[index] {
+			if startIndex < 0 {
+				index++
+			}
+		} else {
+			index = 0
+		}
+		// Check if the current index is the end of the map
+		if cache.Data[i] == '}' && !inString {
+			if startIndex > 0 {
+				// Store the removed value
+				var data string = string(append(cache.Data[startIndex:i], '}'))
+				// Remove the value
+				cache.Data = append(cache.Data[:startIndex], cache.Data[i+2:]...)
+				// Return the value removed
+				return data[len(key)-1:]
 			}
 		}
 	}
