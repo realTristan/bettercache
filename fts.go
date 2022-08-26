@@ -97,18 +97,20 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		} else
 
 		// Check if the current index is the end of the map
-		if cache.Data[i] == '}' {
-			// Make sure the map start has been established
-			if mapStart > 0 {
-				if valueIndex > mapStart && valueIndex < i+1 {
-					// Append the data to the result array
-					Result = append(Result, string(cache.Data[mapStart+1:i]))
-				}
-				// Reste the indexing variables
-				dataLength = []byte{}
-				mapStart = -1
-				valueIndex = -1
+		// Also Make sure the map start has been established
+		if cache.Data[i] == '}' && mapStart > 0 {
+
+			// Check whether the query index is in between the map start
+			// and the map end
+			if valueIndex > mapStart && valueIndex < i+1 {
+
+				// Append the data to the result array
+				Result = append(Result, string(cache.Data[mapStart+1:i]))
 			}
+
+			// Reste the indexing variables
+			mapStart, valueIndex = -1, -1
+			dataLength = []byte{}
 		}
 	}
 	// Return the result
