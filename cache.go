@@ -4,6 +4,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -19,8 +20,8 @@ type TextSearch struct {
 }
 
 // The Cache struct contains two primary keys
-/* Data: []byte -> The Cache Data 							 */
-/* Mutex: *sync.Mutex -> Used for locking/unlocking the data */
+/* Data: []byte -> The Cache Data in Bytes						 	 */
+/* Mutex: *sync.Mutex -> Used for locking/unlocking the data 	 	 */
 type Cache struct {
 	Data  []byte
 	Mutex *sync.RWMutex
@@ -32,17 +33,34 @@ var (
 	MaxCacheSize int
 )
 
+// The _Init_() function returns a Cache object
+// based off the provided cache size
+func _Init_(size int) *Cache {
+	// Limited Size
+	if size > 0 {
+		var c *Cache = &Cache{
+			Data:  make([]byte, size+1),
+			Mutex: &sync.RWMutex{},
+		}
+		c.Data[0] = '*'
+		return c
+	} else
+	// Unlimited size
+	{
+		return &Cache{
+			Data:  []byte{'*'},
+			Mutex: &sync.RWMutex{},
+		}
+	}
+}
+
 // Initialize Cache
 func Init(size int) *Cache {
 	// Set global variables
 	MaxCacheSize = size
 
 	// Create new cache
-	var c *Cache = &Cache{
-		Data:  make([]byte, size+1),
-		Mutex: &sync.RWMutex{},
-	}
-	c.Data[0] = '*'
+	var c *Cache = _Init_(size)
 	return c
 }
 
@@ -147,6 +165,14 @@ func (cache *Cache) DumpBytes() []byte {
 	return cache.Data
 }
 
+// The DumpJson() function returns the cache
+// as a json map.
+func (cache *Cache) DumpJson() string {
+	return string(
+		append([]byte{'{'},
+			append(cache.Data[1:len(cache.Data)-1], '}')...))
+}
+
 // The DumpData() function returns the serialized
 // cache map. Use the DumpData() function for returning
 // the cache bytes
@@ -183,21 +209,6 @@ func (cache *Cache) Remove(key string) {
 	// Set the Cache Data
 	var data, _ = json.Marshal(_cache)
 	cache.Data = append([]byte{'*'}, data[1:]...)
-}
-
-// The Get() function read locks then read unlocks
-// the cache data to ensure safety before serializing
-// the byte cache to a map.
-//
-// Once the cache is converted into a map, it will then
-// return the value of the provided key
-func (cache *Cache) Get(key string) map[string]string {
-	// Lock/Unlock the mutex
-	cache.Mutex.RLock()
-	defer cache.Mutex.RUnlock()
-
-	// Return the cache data
-	return cache.serialize()[key]
 }
 
 // The FullTextSearch() function iterates through the cache data
@@ -276,4 +287,55 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 	}
 	// Return the result
 	return Result
+}
+
+// The Get() function read locks then read unlocks
+// the cache data to ensure safety before returning
+// a json map with the key's value
+func (cache *Cache) Get(key string) string {
+	// Set the new key
+	key = fmt.Sprintf(`"%s":{`, key)
+
+	// Lock/Unlock the mutex
+	cache.Mutex.RLock()
+	defer cache.Mutex.RUnlock()
+
+	// Define Variables
+	var (
+		// inString -> Track whether bracket is inside a string
+		inString bool = false
+		// startIndex -> Track the start of the key value
+		startIndex int = -1
+		// index -> Track the key indexes
+		index int = 0
+	)
+	// Iterate over the lowercase cache string
+	for i := 0; i < len(cache.Data); i++ {
+		// Check whether the current index is
+		// in a string or not
+		if i > 0 {
+			if cache.Data[i] == '"' && cache.Data[i-1] != '\\' {
+				inString = !inString
+			}
+		}
+		// Check if current index is the start of a map
+		if index == len(key) {
+			startIndex = i - 1
+			index = 0
+		} else if cache.Data[i] == key[index] {
+			if startIndex < 0 {
+				index++
+			}
+		} else {
+			index = 0
+		}
+		// Check if the current index is the end of the map
+		if cache.Data[i] == '}' && !inString {
+			if startIndex > 0 {
+				return string(append(cache.Data[startIndex:i], '}'))
+			}
+		}
+	}
+	// Return empty string
+	return ""
 }
