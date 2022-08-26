@@ -67,12 +67,18 @@ func Init(size int) *Cache {
 
 // The Exists() function returns whether the
 // provided key exists in the cache
+//
+// No read lock/unlock because this function isn't
+// as heavy as the ones that do utilize the read locks
 func (cache *Cache) Exists(key string) bool {
 	return len(cache.Get(key)) > 0
 }
 
 // The GetByteSize() function returns the current size of the
 // cache bytes and the cache maximum size
+//
+// No read lock/unlock because this function isn't
+// as heavy as the ones that do utilize the read locks
 func (cache *Cache) GetByteSize() (int, int) {
 	return len(cache.Data), MaxCacheSize
 }
@@ -91,15 +97,25 @@ func (cache *Cache) Expire(key string, _time time.Duration) {
 // data. Make sure to use this function when
 // clearing the cache!
 func (cache *Cache) Flush() {
+	cache.Mutex.Lock()
+	defer cache.Mutex.Unlock()
+
+	// Reset the cache data
 	cache.Data = []byte{'*'}
 }
 
 // The ShowBytes() function returns the cache bytes
+//
+// No read lock/unlock because this function isn't
+// as heavy as the ones that do utilize the read locks
 func (cache *Cache) ShowBytes() []byte {
 	return cache.Data
 }
 
 // The Show() function returns the cache as a string
+//
+// No read lock/unlock because this function isn't
+// as heavy as the ones that do utilize the read locks
 func (cache *Cache) Show() string {
 	return string(cache.Data)
 }
@@ -113,8 +129,6 @@ func (cache *Cache) Show() string {
 // defined key
 func (cache *Cache) Set(key string, data string) string {
 	var removedValue string = cache.Remove(key)
-	// Set the new key
-	key = fmt.Sprintf(`|%s|:~%d{`, key, len(data))
 
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
@@ -122,7 +136,8 @@ func (cache *Cache) Set(key string, data string) string {
 
 	// Set the byte cache value
 	cache.Data = append(
-		cache.Data, append([]byte(key), []byte(fmt.Sprintf(`%s}`, data))...)...)
+		cache.Data, append([]byte(
+			fmt.Sprintf(`|%s|:~%d{`, key, len(data))), []byte(fmt.Sprintf(`%s}`, data))...)...)
 
 	// Return the removed value
 	return removedValue
