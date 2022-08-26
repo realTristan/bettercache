@@ -132,7 +132,7 @@ func (cache *Cache) Set(key string, data string) string {
 
 	// Set the byte cache value
 	cache.Data = append(
-		cache.Data, append(keyBytes, []byte(fmt.Sprintf(`%s}`, data))...)...)
+		cache.Data, append(keyBytes, append([]byte(data), '}')...)...)
 
 	// Return the removed value
 	return removedValue

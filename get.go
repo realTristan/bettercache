@@ -14,8 +14,8 @@ func (cache *Cache) Get(key string) string {
 	defer cache.Mutex.RUnlock()
 
 	// Make sure the cache contains the provided key first
-	var newKey []byte = []byte(fmt.Sprintf(`%s:`, key))
-	if !bytes.Contains(cache.Data, newKey) {
+	var keyBytes []byte = append([]byte(key), ':')
+	if !bytes.Contains(cache.Data, keyBytes) {
 		return ""
 	}
 
@@ -33,7 +33,7 @@ func (cache *Cache) Get(key string) string {
 	for i := 1; i < len(cache.Data); i++ {
 		// Check if the key is present and the current
 		// index is standing at that key
-		if index == len(newKey) {
+		if index == len(keyBytes) {
 
 			// Set the starting index and reset the
 			// key's index variable
@@ -42,8 +42,8 @@ func (cache *Cache) Get(key string) string {
 		} else
 
 		// Check if the current index value is
-		// equal to the newKey's current index
-		if cache.Data[i] == newKey[index] {
+		// equal to the keyBytes's current index
+		if cache.Data[i] == keyBytes[index] {
 			// Make sure the startIndex has been established
 			if startIndex < 0 {
 				index++
@@ -68,7 +68,6 @@ func (cache *Cache) Get(key string) string {
 
 			// Check if the current index is the end of the data
 			if fmt.Sprint(i-startIndex-2) == string(dataLength) {
-
 				// Return the data
 				return string(cache.Data[startIndex+2 : i])
 			}
