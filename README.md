@@ -72,9 +72,9 @@ func (cache *Cache) GetByteSize() (int, int) {}
 // maximum size
 func (cache *Cache) GetMapSize() (int, int) {}
 
-// The ExpireKey() function removes the provided key
+// The Expire() function removes the provided key
 // from the cache after the given time
-func (cache *Cache) ExpireKey(key string, _time time.Duration) {}
+func (cache *Cache) Expire(key string, _time time.Duration) {}
 
 // The Flush() function resets the cache
 // data. Make sure to use this function when
