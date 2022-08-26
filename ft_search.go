@@ -11,7 +11,7 @@ type TextSearch struct {
 }
 
 // The isLetter() function returns whether the provided
-// character is a letter or not
+// character is a letter or not.
 func isLetter(c byte) bool {
 	return (c >= 65 && c <= 90) || (c >= 97 && c <= 122)
 }
