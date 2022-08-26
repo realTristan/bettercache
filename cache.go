@@ -212,12 +212,13 @@ func (cache *Cache) Remove(key string) {
 }
 
 // The FullTextSearch() function iterates through the cache data
-// and returns the value of a key. This value contains the Query
-// defined in the provided TextSearch object
+// and returns the json value of a key.
+// This value contains the Query defined in the provided
+// TextSearch object
 //
 // To ensure safety, the cache data is locked then unlocked once
 // no longer being used
-func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
+func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
 	defer cache.Mutex.RUnlock()
@@ -231,7 +232,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 		// closeBracketCount -> Track closing brackets per map
 		closeBracketCount int = 0
 		// Result -> Array with all maps containing the query
-		Result []map[string]string
+		Result []string
 		// Set the temp cache
 		TempCache []byte = cache.Data
 	)
@@ -270,12 +271,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []map[string]string {
 			if closeBracketCount == 1 {
 				// Check if the map contains the query string
 				if bytes.Contains(TempCache[mapStart:i+1], TS.Query) {
-					// Convert the string to a map
-					var data map[string]string
-					json.Unmarshal(cache.Data[mapStart:i+1], &data)
-
-					// Append the map to the result array
-					Result = append(Result, data)
+					// Append the json map to the result array
+					Result = append(Result, string(cache.Data[mapStart:i+1]))
 				}
 				// Reset indexing variables
 				closeBracketCount = 0
