@@ -12,7 +12,7 @@ func main() {
 
 	startTime := time.Now()
 	// Set cache keys
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1; i++ {
 		Cache.Set(fmt.Sprintf("key%d", i), fmt.Sprintf("my name is \"tristan%d\"", i))
 	}
 
