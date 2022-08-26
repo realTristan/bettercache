@@ -11,7 +11,7 @@ func main() {
 	var Cache *Cache = Init(-1) // -1 -> Unlimited Size
 
 	// Set cache keys
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 10; i++ {
 		Cache.Set(fmt.Sprintf("key%d", i), fmt.Sprintf("my name is \"tristan%d\"", i))
 	}
 	// Track speed
@@ -20,7 +20,7 @@ func main() {
 	// Get the text search result
 	res := Cache.FullTextSearch(TextSearch{
 		Limit:      -1,
-		Query:      []byte("tristan"),
+		Query:      []byte("Tristan"),
 		StrictMode: false,
 	})
 	// Print result
@@ -38,6 +38,6 @@ func main() {
 
 	// Test showing the cache
 	startTime = time.Now()
-	s := Cache.Show()
-	fmt.Printf("Show Cache -> (%v): %v\n\n", time.Since(startTime), s)
+	Cache.Show()
+	fmt.Printf("Show Cache -> (%v): %v\n\n", time.Since(startTime), nil)
 }

@@ -1,10 +1,5 @@
 package main
 
-import (
-	"bytes"
-	"strings"
-)
-
 // The TextSearch struct contains three primary keys
 /* Query: []byte -> What to query for									*/
 /* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
@@ -15,8 +10,31 @@ type TextSearch struct {
 	Limit      int
 }
 
-// The FullTextSearch() function iterates through the cache data
-// and returns the json value of a key.
+// The isLetter() function returns whether the provided
+// character is a letter or not
+func isLetter(c byte) bool {
+	return (c >= 65 && c <= 90) || (c >= 97 && c <= 122)
+}
+
+// The equalCharAtIndex() returns whether the characters
+// at the given index are equal to eachother
+//
+// If not StrictMode then it doesn't matter whether the
+// character is uppercase/lowercase
+func (cache *Cache) equalCharAtIndex(i int, index int, TS *TextSearch) bool {
+	// Ensure the character is a letter and check
+	// Whether strict mode is disabled
+	if !TS.StrictMode && isLetter(cache.Data[i]) {
+		return cache.Data[i]-32 == TS.Query[index] ||
+			cache.Data[i]+32 == TS.Query[index] ||
+			cache.Data[i] == TS.Query[index]
+	}
+	// Return the strict mode result
+	return cache.Data[i] == TS.Query[index]
+}
+
+// The FullTextSearch() function iterates through the
+// cache data and returns the json value of a key.
 // This value contains the Query defined in the provided
 // TextSearch object
 //
@@ -35,17 +53,12 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		mapStart int = -1
 		// Track the length of the data
 		dataLength = []byte{}
-
-		// Check if strict mode is enabled
-		// If true, convert the temp cache to lowercase
-		isStrictMode = func() []byte {
-			// Return the cache in lowercase
-			if !TS.StrictMode {
-				return bytes.ToLower(cache.Data)
-			}
-			// Return the cache as is
-			return cache.Data
-		}
+		// valueIndex -> Track the index of the TS.Query
+		// This is used for checking whether the Query is in
+		// the middle of the cache key start and the cache key end
+		valueIndex int = -1
+		// index -> Track the index of the TS.Query
+		index int = 0
 	)
 
 	// Iterate over the lowercase cache string
@@ -54,7 +67,21 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		// Break the loop if over the text search limit
 		if TS.Limit > 0 && len(Result) >= TS.Limit {
 			break
-		} else
+		}
+
+		// Check if the strings are equal
+		if cache.equalCharAtIndex(i, index, &TS) {
+			index++
+		} else {
+			// Reset the index
+			index = 0
+		}
+		// Check if the key is present and the current
+		// index is standing at that key
+		if index == len(TS.Query) && valueIndex < 0 {
+			valueIndex = i
+			index = 0
+		}
 
 		// Check if current index is the start of a map
 		if cache.Data[i] == '{' {
@@ -71,22 +98,16 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 
 		// Check if the current index is the end of the map
 		if cache.Data[i] == '}' {
-
 			// Make sure the map start has been established
 			if mapStart > 0 {
-
-				// Check if the current data contains the query
-				if bytes.Contains(isStrictMode()[mapStart:i+1], TS.Query) {
-
+				if valueIndex > mapStart && valueIndex < i+1 {
 					// Append the data to the result array
-					Result = append(Result, strings.ReplaceAll(
-						string(cache.Data[mapStart+1:i]), "~|", ""))
+					Result = append(Result, string(cache.Data[mapStart+1:i]))
 				}
-
-				// Reset the data length variable
-				// and the map start variable
+				// Reste the indexing variables
 				dataLength = []byte{}
 				mapStart = -1
+				valueIndex = -1
 			}
 		}
 	}
