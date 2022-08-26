@@ -32,19 +32,17 @@ import (
 
 func main() {
     // Initialize the cache
-	var Cache *cache.Cache = cache.Init(100) // 100 bytes
+    var Cache *cache.Cache = cache.Init(-1) // -1 (no pre defined size)
 
     // Add key1 to the cache
-    Cache.Set("key1", map[string]string{
-		"summary": "My name is \"Tristan\"",
-	})
+    Cache.Set("key1", "My name is \"Tristan\"")
 
     // Get key from the cache
-    var data = Cache.Get("key1")
+    var data string = Cache.Get("key1")
     fmt.Println(data)
 
     // Full Text Search for the key's contents
-	var res = Cache.FullTextSearch(Cache.TextSearch{
+	var res []string = Cache.FullTextSearch(Cache.TextSearch{
 		Limit:      -1,                 // No limit
 		Query:      []byte("tristan"),  // Search for "tristan"
 		StrictMode: false,              // Ignore CAPS
@@ -52,7 +50,8 @@ func main() {
     fmt.Println(res)
 
     // Remove key1 from the cache
-    Cache.Remove("key1")
+    var removedKey string = Cache.Remove("key1")
+    fmt.Println(removedKey)
 }
 
 ```
