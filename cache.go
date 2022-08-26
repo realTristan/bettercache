@@ -124,15 +124,16 @@ func (cache *Cache) Set(key string, data string) string {
 	// Check if the key already exists
 	if bytes.Contains(cache.Data, []byte(key)) {
 		removedValue = cache.Remove(key)
-
-		// Lock/Unlock the mutex
-		cache.Mutex.Lock()
-		defer cache.Mutex.Unlock()
-
-		// Set the byte cache value
-		cache.Data = append(
-			cache.Data, append(keyBytes, []byte(fmt.Sprintf(`%s}`, data))...)...)
 	}
+
+	// Lock/Unlock the mutex
+	cache.Mutex.Lock()
+	defer cache.Mutex.Unlock()
+
+	// Set the byte cache value
+	cache.Data = append(
+		cache.Data, append(keyBytes, []byte(fmt.Sprintf(`%s}`, data))...)...)
+
 	// Return the removed value
 	return removedValue
 }
