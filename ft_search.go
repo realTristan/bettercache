@@ -5,9 +5,9 @@ package cache
 /* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
 /* Limit: int -> The number of results to return						*/
 type TextSearch struct {
-	query      []byte
-	strictMode bool
-	limit      int
+	Query      []byte
+	StrictMode bool
+	Limit      int
 }
 
 // The isLetter() function returns whether the provided
@@ -21,16 +21,21 @@ func isLetter(c byte) bool {
 //
 // If not StrictMode then it doesn't matter whether the
 // character is uppercase/lowercase
-func (cache *Cache) equalCharAtIndex(i int, index int, TS *TextSearch) bool {
+//
+// i: cache.data index
+// n: query index
+// q: query bytes
+// sm: strict mode
+func (cache *Cache) equalCharAtIndex(i int, n int, q []byte, sm bool) bool {
 	// Ensure the character is a letter and check
 	// Whether strict mode is disabled
-	if !TS.strictMode && isLetter(cache.data[i]) {
-		return cache.data[i]-32 == TS.query[index] ||
-			cache.data[i]+32 == TS.query[index] ||
-			cache.data[i] == TS.query[index]
+	if !sm && isLetter(cache.data[i]) {
+		return cache.data[i]-32 == q[n] ||
+			cache.data[i]+32 == q[n] ||
+			cache.data[i] == q[n]
 	}
 	// Return the strict mode result
-	return cache.data[i] == TS.query[index]
+	return cache.data[i] == q[n]
 }
 
 // The FullTextSearch() function iterates through the
@@ -51,8 +56,6 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		Result []string
 		// mapStart -> Track opening bracket
 		mapStart int = -1
-		// Track the length of the data
-		dataLength = []byte{}
 		// valueIndex -> Track the index of the TS.Query
 		// This is used for checking whether the Query is in
 		// the middle of the cache key start and the cache key end
@@ -65,12 +68,12 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 	for i := 1; i < len(cache.data); i++ {
 
 		// Break the loop if over the text search limit
-		if TS.limit > 0 && len(Result) >= TS.limit {
+		if TS.Limit > 0 && len(Result) >= TS.Limit {
 			break
 		}
 
 		// Check if the strings are equal
-		if cache.equalCharAtIndex(i, index, &TS) {
+		if cache.equalCharAtIndex(i, index, TS.Query, TS.StrictMode) {
 			index++
 		} else {
 			// Reset the index
@@ -78,7 +81,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		}
 		// Check if the key is present and the current
 		// index is standing at that key
-		if index == len(TS.query) && valueIndex < 0 {
+		if index == len(TS.Query) && valueIndex < 0 {
 			valueIndex = i
 			index = 0
 		}
@@ -88,11 +91,6 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 			// Make sure the map start has NOT been established
 			if mapStart == -1 {
 				mapStart = i
-			}
-
-			// Get the length of the cache data
-			if len(dataLength) == 0 {
-				dataLength = cache.data[mapStart-2 : i]
 			}
 		} else
 
@@ -106,11 +104,11 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 
 				// Append the data to the result array
 				Result = append(Result, string(cache.data[mapStart+1:i]))
+
+				// Reste the indexing variables
+				mapStart, valueIndex = -1, -1
 			}
 
-			// Reste the indexing variables
-			mapStart, valueIndex = -1, -1
-			dataLength = []byte{}
 		}
 	}
 	// Return the result
