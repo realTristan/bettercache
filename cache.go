@@ -4,6 +4,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -92,19 +93,14 @@ func (cache *Cache) Flush() {
 	cache.Data = []byte{'*'}
 }
 
-// The DumpBytes() function returns the cache
-// bytes. Use the DumpData() function for returning
-// the actual map
-func (cache *Cache) DumpBytes() []byte {
-	return cache.Data[1 : len(cache.Data)-1]
+// The ShowBytes() function returns the cache bytes
+func (cache *Cache) ShowBytes() []byte {
+	return cache.Data
 }
 
-// The DumpJson() function returns the cache
-// as a json map.
-func (cache *Cache) DumpJson() string {
-	return string(
-		append([]byte{'{'},
-			append(cache.Data[1:len(cache.Data)-1], '}')...))
+// The Show() function returns the cache as a string
+func (cache *Cache) Show() string {
+	return string(cache.Data)
 }
 
 // The Set() function sets the value for the
@@ -115,10 +111,13 @@ func (cache *Cache) DumpJson() string {
 // Returns the removed value of the previously
 // defined key
 func (cache *Cache) Set(key string, data string) string {
+	if strings.Contains(data, `~|`) {
+		panic(`(BetterCache) Remove ( ~| ) from Set(data: string)`)
+	}
 	var removedValue string = cache.Remove(key)
 
 	// Set the new key
-	key = fmt.Sprintf(`"%s":{`, key)
+	key = fmt.Sprintf(`|%s|:{`, key)
 
 	// Lock/Unlock the mutex
 	cache.Mutex.Lock()
@@ -127,7 +126,7 @@ func (cache *Cache) Set(key string, data string) string {
 	// Set the byte cache value
 	cache.Data = append(
 		cache.Data, append([]byte(key),
-			append([]byte(data), []byte{'}', ','}...)...)...)
+			append([]byte(`~|`+data+`~|`), '}')...)...)
 
 	// Return the removed value
 	return removedValue
@@ -174,7 +173,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 
 		// Check whether the current index is
 		// in a string or not
-		if TempCache[i] == '"' && TempCache[i-1] != '\\' {
+		if TempCache[i] == '|' && TempCache[i-1] == '~' {
 			inString = !inString
 		}
 
@@ -192,7 +191,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 				// Check if the map contains the query string
 				if bytes.Contains(TempCache[mapStart:i+1], TS.Query) {
 					// Append the json map to the result array
-					Result = append(Result, string(cache.Data[mapStart:i+1]))
+					Result = append(Result, strings.ReplaceAll(
+						string(cache.Data[mapStart+1:i]), "~|", ""))
 				}
 				// Reset indexing variables
 				closeBracketCount = 0
@@ -211,7 +211,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 // a json map with the key's value
 func (cache *Cache) Get(key string) string {
 	// Set the new key
-	key = fmt.Sprintf(`"%s":{`, key)
+	var newKey string = fmt.Sprintf(`|%s|:{`, key)
 
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
@@ -230,15 +230,15 @@ func (cache *Cache) Get(key string) string {
 	for i := 1; i < len(cache.Data); i++ {
 		// Check whether the current index is
 		// in a string or not
-		if cache.Data[i] == '"' && cache.Data[i-1] != '\\' {
+		if cache.Data[i] == '|' && cache.Data[i-1] == '~' {
 			inString = !inString
 		}
 
 		// Check if current index is the start of a map
-		if index == len(key) {
+		if index == len(newKey) {
 			startIndex = i - 1
 			index = 0
-		} else if cache.Data[i] == key[index] {
+		} else if cache.Data[i] == newKey[index] {
 			if startIndex < 0 {
 				index++
 			}
@@ -248,7 +248,8 @@ func (cache *Cache) Get(key string) string {
 		// Check if the current index is the end of the map
 		if cache.Data[i] == '}' && !inString {
 			if startIndex > 0 {
-				return string(append(cache.Data[startIndex:i], '}'))
+				return strings.ReplaceAll(
+					string(cache.Data[startIndex+1:i]), "~|", "")
 			}
 		}
 	}
@@ -266,7 +267,7 @@ func (cache *Cache) Get(key string) string {
 // It will return the removed value
 func (cache *Cache) Remove(key string) string {
 	// Set the new key
-	key = fmt.Sprintf(`"%s":{`, key)
+	key = fmt.Sprintf(`|%s|:{`, key)
 
 	// Lock/Unlock the mutex
 	cache.Mutex.RLock()
@@ -285,13 +286,13 @@ func (cache *Cache) Remove(key string) string {
 	for i := 1; i < len(cache.Data); i++ {
 		// Check whether the current index is
 		// in a string or not
-		if cache.Data[i] == '"' && cache.Data[i-1] != '\\' {
+		if cache.Data[i] == '|' && cache.Data[i-1] == '~' {
 			inString = !inString
 		}
 
 		// Check if current index is the start of a map
 		if index == len(key) {
-			startIndex = i - len(key)
+			startIndex = i
 			index = 0
 		} else if cache.Data[i] == key[index] {
 			if startIndex < 0 {
@@ -303,12 +304,10 @@ func (cache *Cache) Remove(key string) string {
 		// Check if the current index is the end of the map
 		if cache.Data[i] == '}' && !inString {
 			if startIndex > 0 {
-				// Store the removed value
-				var data string = string(append(cache.Data[startIndex:i], '}'))
 				// Remove the value
-				cache.Data = append(cache.Data[:startIndex], cache.Data[i+2:]...)
+				cache.Data = append(cache.Data[:startIndex-len(key)], cache.Data[i+1:]...)
 				// Return the value removed
-				return data[len(key)-1:]
+				return strings.ReplaceAll(string(cache.Data[startIndex:i]), "~|", "")
 			}
 		}
 	}

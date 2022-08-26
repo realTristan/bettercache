@@ -115,6 +115,9 @@ func (cache *Cache) Remove(key string) string {}
 // no longer being used
 func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
 
+// The Show() function returns the cache as a string
+func (cache *Cache) Show() string {}
+
 // The Exists() function returns whether the
 // provided key exists in the cache
 func (cache *Cache) Exists(key string) bool {}
@@ -132,14 +135,8 @@ func (cache *Cache) Expire(key string, _time time.Duration) {}
 // clearing the cache!
 func (cache *Cache) Flush() {}
 
-// The DumpBytes() function returns the cache
-// bytes. Use the DumpData() function for returning
-// the actual map
-func (cache *Cache) DumpBytes() []byte {}
-
-// The DumpJson() function returns the cache
-// as a json map.
-func (cache *Cache) DumpJson() string {}
+// The ShowBytes() function returns the cache bytes
+func (cache *Cache) ShowBytes() []byte {}
 
 ```
 

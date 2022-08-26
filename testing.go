@@ -44,18 +44,18 @@ func (cache *Cache) TestGet() {
 
 // Function to test the FullTextSearch() function
 func (cache *Cache) TestFullTextSearch() {
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 2; i++ {
 		cache.Set("key2", "my name is \"tristan\"")
 	}
 	// Track speed
 	startTime := time.Now()
 
 	// Get the text search result
-	cache.FullTextSearch(TextSearch{
+	res := cache.FullTextSearch(TextSearch{
 		Limit:      -1,
-		Query:      []byte("daniel"),
+		Query:      []byte("tristan"),
 		StrictMode: false,
 	})
 	// Print result
-	fmt.Printf("Test: FullTextSearch() -> (%v): %v\n\n", time.Since(startTime), nil)
+	fmt.Printf("Test: FullTextSearch() -> (%v): %v\n\n", time.Since(startTime), res)
 }
