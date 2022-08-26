@@ -74,6 +74,7 @@ func (cache *Cache) Get(key string) string {
 			}
 			// Reset the data length variable
 			dataLength = []byte{}
+			startIndex = -1
 		}
 	}
 	// Return empty string
