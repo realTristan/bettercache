@@ -40,10 +40,16 @@ func main() {
 		Value:    "value3",
 		FullText: true,
 	})
+	c.Set(&cache.SetData{
+		Key:      "key4",
+		Value:    "value4",
+		FullText: false,
+	})
 
 	// Remove key2
+	fmt.Println(c.Get("key4").(string) + "++")
 	c.Remove("key2")
-	fmt.Println(c.Get("key1").(string) + "++")
+	fmt.Println(c.Get("key3").(string) + "++")
 
 	// Full text search
 	st := time.Now()
@@ -55,13 +61,13 @@ func main() {
 	fmt.Println(time.Since(st))
 	fmt.Println(r)
 
-	/* Full text remove
+	// Full text remove
 	fr := c.FullTextRemove(&cache.TextRemove{
 		Query:  "value",
 		Amount: 1,
 	})
-	fmt.Println(fr)*/
-
+	fmt.Println(fr)
+	fmt.Println(c.Show())
 	Map_VS_Slice()
 }
 

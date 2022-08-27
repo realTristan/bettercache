@@ -69,10 +69,10 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 		if strings.Contains(cache.fullTextData[i], TR.Query) {
 			// Split the cache value by ':' to bypass
 			// the {key_name}:
-			var split []string = strings.Split(cache.fullTextData[i], ":")
+			var key string = strings.Split(cache.fullTextData[i], ":")[0]
 			// Append value that contains the query to
 			// the result slice
-			res = append(res, split[1])
+			res = append(res, cache.fullTextData[i][len(key)+1:])
 
 			// I decided to put this inside a function so that
 			// even if there's any errors in the Remove function,
@@ -86,7 +86,7 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 				defer cache.mutex.RLock()
 
 				// Remove the key from the cache
-				cache.Remove(split[0])
+				cache.Remove(key)
 			}()
 		}
 		//}

@@ -232,44 +232,13 @@ func (cache *Cache) Get(key string) interface{} {
 		defer cache.mutex.RUnlock()
 
 		// Return the full text cache string
-		return cache.fullTextData[cache.fullTextIndices[key]]
+		return cache.fullTextData[cache.fullTextIndices[key]][len(key)+1:]
 	} else if cache.ExistsInMain(key) {
 		// Mutex locking
 		cache.mutex.RLock()
 		defer cache.mutex.RUnlock()
 
 		// Return the full text cache string
-		return cache.mainData[cache.mainIndices[key]]
-	}
-	// Return empty string
-	return ""
-}
-
-// The Get function is used for return a value from the cache
-// with a key. The function read locks the cache mutex before
-// checking whether the key exists in the cache. If the key
-// does exist, it will use the cache indices map to get the cache data
-// index and return the cache value. Once the function returns,
-// the mutex is unlocked
-
-// Returns the unmodified cache value of the provided key
-/* Parameters 						*/
-/* 	key: string { "The Cache Key" } */
-//
-/* Returns 							*/
-/* 	cacheValue: interface{} 		*/
-func (cache *Cache) GetFull(key string) interface{} {
-	// Make sure the key exists before returning
-	// the key's value
-	// If you don't check whether the key exists before
-	// then it will return the key prior to the given in
-	// the indices map
-	if cache.Exists(key) {
-		// Mutex locking
-		cache.mutex.RLock()
-		defer cache.mutex.RUnlock()
-
-		// Return the key value
 		return cache.mainData[cache.mainIndices[key]]
 	}
 	// Return empty string
@@ -309,8 +278,12 @@ func (cache *Cache) Remove(key string) interface{} {
 		}
 		// Delete key from cache.mainIndices map
 		delete(cache.mainIndices, key)
-		// Return the removed value
-		return cache.mainData[cache.mainIndices[key]]
+
+		// Make sure the cache data isn't empty
+		if len(cache.mainData) > 0 {
+			// Return the removed value
+			return cache.mainData[cache.mainIndices[key]]
+		}
 	} else
 
 	// Else if the key exists in the full text data
@@ -327,8 +300,12 @@ func (cache *Cache) Remove(key string) interface{} {
 		}
 		// Delete key from cache.fullTextIndices map
 		delete(cache.fullTextIndices, key)
-		// Return the removed value
-		return cache.fullTextData[cache.fullTextIndices[key]]
+
+		// Make sure the cache data isn't empty
+		if len(cache.mainData) > 0 {
+			// Return the removed value
+			return cache.fullTextData[cache.fullTextIndices[key]]
+		}
 	}
 	// Return an empty string
 	return ""
