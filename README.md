@@ -4,9 +4,7 @@
 Lightning Fast Caching System for Go.
 
 # About
-- Better Cache is a native golang caching system that uses an array of bytes for storing data. Because of this, we can perform lightning fast full text searches (within nanoseconds to milliseconds). The Full Text Search uses no external packages.
-
-- This project was primarily made for the full text search speeds. Because of this, the .Get(), .Set() and .Remove() functions should not be consistently used. For best usage, pre-set your cache at the start of your program.
+- Better Cache is a native golang caching system that uses a slice for storing data. Because of this, we can perform lightning fast full text searches (within nanoseconds to milliseconds).
 
 # Benchmarks
 
@@ -25,6 +23,7 @@ Lightning Fast Caching System for Go.
 ```go
 package main
 
+// Import Packages
 import (
     "fmt"
     cache "github.com/realTristan/BetterCache"
@@ -35,7 +34,11 @@ func main() {
     var Cache *cache.Cache = cache.Init(-1) // -1 (no pre defined size)
 
     // Add key1 to the cache
-    Cache.Set("key1", "My name is \"Tristan\"")
+    Cache.Set(&SetData{
+        Key:      "key1",       // The cache key
+        Value:    "value1",     // The cache value
+        FullText: true,         // If true, Value converts to a string
+    })
 
     // Get key from the cache
     var data string = Cache.Get("key1")
@@ -44,7 +47,7 @@ func main() {
     // Full Text Search for the key's contents
     var res []string = Cache.FullTextSearch(cache.TextSearch{
         Limit:      -1,                 // No limit
-        Query:      []byte("tristan"),  // Search for "tristan"
+        Query:      []byte("value"),    // Search for "value"
         StrictMode: false,              // Ignore CAPS
 	})
     fmt.Println(res)
@@ -58,87 +61,198 @@ func main() {
 # Functions
 
 ```go
-// The TextSearch struct contains three primary keys
-/* Query: []byte -> What to query for									*/
-/* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
-/* Limit: int -> The number of results to return						*/
-type TextSearch struct {
-	query      []byte
-	strictMode bool
-	limit      int
-}
 
-// The Cache struct contains three primary keys
-/* Data: []byte -> The Cache Data in Bytes						 	 */
-/* Mutex: *sync.Mutex -> Used for locking/unlocking the data 	 	 */
-/* MaxSize int -> The cache max size 								 */
+// The Cache struct has six primary keys
+/* CurrentSize: int { "The current map size" }                                        */
+/* maxSize: int { "The maximum map size" }                                            */
+/* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
+/* mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								                                             */
+/* fullTextData: []string { "The Full Text Data Cache Values" } 					  */
+/* fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	                                                                    */
 type Cache struct {
-	data    []byte
-	mutex   *sync.RWMutex
-	maxSize int
+	currentSize     int
+	maxSize         int
+	mutex           *sync.RWMutex
+	fullTextData    []string
+	fullTextIndices map[interface{}]int
+	mapData         map[interface{}]interface{}
 }
 
-// The Init() function creates the Cache
-// object depending on what was entered for
-// the size of the cache
+// The SetData struct has three primary keys
+/* Key: string { "The Cache Key" }		                            */
+/* Value: string { "The Cache Value" }	                            */
+/* FullText: string { "Whether to enable full text functions " }	*/
+// WARNING
+/* If FullText is set to true, it converts the Value to a string	*/
+type SetData struct {
+	Key      interface{}
+	Value    interface{}
+	FullText bool
+}
+
+// The Init function is used for initalizing the Cache struct
+// and returning the newly created cache object.
+// You can create the cache by yourself, but using the Init()
+// function is much easier
+
+// Initializes the cache object
+/* Parameters 												*/
+/* 	size: int { "The Size of the cache map and slice" }  	*/
+//
+/* Returns 													*/
+/* 	cache: *Cache 											*/
 func Init(size int) *Cache {}
 
-// The FullTextSearch() function iterates through the cache data
-// and returns the json value of a key.
-// This value contains the Query defined in the provided
-// TextSearch object
+// The Set function is used for setting a new value inside
+// the cache data. The Set function locks the cache mutex to
+// prevent data overwriting before checking whether the provided
+// key already exists. If it does, it will call the Remove() function
+// to remove that key from the cache.
 //
-// To ensure safety, the cache data is locked then unlocked once
-// no longer being used
-func (cache *Cache) FullTextSearch(TS TextSearch) []string {}
+// Once finished with the removal process, the function
+// adds the value to the cache data slice, then adds the value's
+// index to the cache indices map
 
-// The Set() function sets the value for the
-// provided key inside the cache.
+// Sets a key to the provided value
+/* Parameters 										 			    		*/
+/* 	key: string { "The Cache Key" }  					 			    	*/
+/* 	value: interface{} { "The value to set the key to" }  			    	*/
+/* 	fullText: bool { "Whether to add the value to the full text slice" } 	*/
+func (cache *Cache) Set(SD *SetData) {}
+
+// The ExistsinFullText function is used for checking whether a key
+// exists in the full text cache or not. The function read locks
+// the cache mutex before returning whether the key is in the
+// cache. Once the function returns, the mutex is unlocked
+
+// Returns whether the provided key exists in the cache
+/* Parameters 							*/
+/* 	key: string { "The Cache Key" } 	*/
 //
-// Example: {"key1": "my name is tristan!"},
+/* Returns 								*/
+/* 	doesExist: bool 					*/
+func (cache *Cache) ExistsInFullText(key interface{}) bool {}
+
+// The ExistsInMap function is used for checking whether a key
+// exists in the main cache or not. The function read locks the
+// cache mutex before returning whether the key is in the
+// cache. Once the function returns, the mutex is unlocked
+
+// Returns whether the provided key exists in the cache
+/* Parameters 							    */
+/* 	key: interface{} { "The Cache Key" } 	*/
 //
-// Returns the removed value of the previously
-// defined key
-func (cache *Cache) Set(key string, data string) string {}
+/* Returns 								    */
+/* 	doesExist: bool 					    */
+func (cache *Cache) ExistsInMap(key interface{}) bool {}
 
-// The Get() function read locks then read unlocks
-// the cache data to ensure safety before returning
-// the key's value
-func (cache *Cache) Get(key string) string {}
+// The Exists function is used for checking whether a key
+// exists in the cache or not. The function read locks the
+// cache mutex before returning whether the key is in the
+// cache. Once the function returns, the mutex is unlocked
 
-// The Remove() function locks then unlocks the
-// cache data to ensure safety before iterating through
-// the cache bytes to look for the provided key
+// Returns whether the provided key exists in the cache
+/* Parameters 							*/
+/* 	key: string { "The Cache Key" } 	*/
 //
-// once the key is found it'll search for it's closing
-// bracket then remove the key from the cache bytes
-//
-// It will return the removed value
-func (cache *Cache) Remove(key string) string {}
-
-// The Show() function returns the cache as a string
-func (cache *Cache) Show() string {}
-
-// The ShowBytes() function returns the cache as
-// an array of bytes
-func (cache *Cache) ShowBytes() string {}
-
-// The Exists() function returns whether the
-// provided key exists in the cache
+/* Returns 								*/
+/* 	doesExist: bool 					*/
 func (cache *Cache) Exists(key string) bool {}
 
-// The GetByteSize() function returns the current size of the
-// cache bytes and the cache maximum size
-func (cache *Cache) GetByteSize() (int, int) {}
+// The Get function is used for return a value from the cache
+// with a key. The function read locks the cache mutex before
+// checking whether the key exists in the cache. If the key
+// does exist, it will use the cache indices map to get the cache data
+// index and return the cache value. Once the function returns,
+// the mutex is unlocked
+//
+// If the cache value's FullText has been set to true, it will split
+// the value by ':' and return the index[2] of it's result
 
-// The Expire() function removes the provided key
-// from the cache after the given time
-func (cache *Cache) Expire(key string, _time time.Duration) {}
+// Returns the cache value of the provided key
+/* Parameters 						*/
+/* 	key: string { "The Cache Key" } */
+//
+/* Returns 							*/
+/* 	cacheValue: interface{} 		*/
+func (cache *Cache) Get(key string) interface{} {}
 
-// The Flush() function resets the cache
-// data. Make sure to use this function when
-// clearing the cache!
-func (cache *Cache) Flush() {}
+// The Remove function is used to remove a value from the cache
+// using it's corresponding key. The function full locks the mutex
+// before modifying the cache.mainData, removing the cache value.
+//
+// Once the cache.mapData value is removed, the function moves onto
+// iterating through the cache.mainIndices map reducing all cache indices
+// that are post-the-removed-value. The function then returns the
+// removed value. Once the function returns, the cache mutex is unlocked.
+
+// Removes a key from the cache
+/* Parameters 						*/
+/* 	key: string { "The Cache Key" } */
+//
+/* Returns 							*/
+/* 	removedValue: interface{} 		*/
+func (cache *Cache) Remove(key interface{}) interface{} {}
+
+// The Show function is used for getting the cache data.
+// The function read locks the mutex then returns the
+// cache.mapData and the cache.fullTextData,
+// Once the function has returned, the mutex unlocks
+
+// Show the cache
+/* Returns 							    */
+/* 	cache.mainData: []interface{} 		*/
+func (cache *Cache) Show() (map[interface{}]interface{}, []string) {}
+
+// The ShowFTIndices function is used for getting the cache
+// slice indices. The function read locks the mutex
+// then returns the cache.fullTextIndices. Once the function has returned,
+// the mutex unlocks
+
+// Show the cache
+/* Returns 								    */
+/* 	cache.mainIndices: map[string]int 		*/
+func (cache *Cache) ShowFTIndices() map[interface{}]int {}
+
+// The ShowKeys function is used to get a slice of all
+// the cache keys. The function read locks the cache mutex
+// before iterating over the cache indices map, adding each
+// of the keys to the keys slice.
+//
+// The function then returns the slice of keys. Once the
+// function returns, the cache mutex is unlocked
+
+// Returns all the cache keys in a slice
+//
+/* Returns 							*/
+/* 	keys: []string 					*/
+func (cache *Cache) ShowKeys() []interface{} {}
+
+// The Clear function is used to clear the cache
+// data and the cache indices. The function locks
+// the cache mutex before resetting the cache data
+// and the cache indices. Once the function returns
+// the cache mutex is unlocked
+
+// Clear the cache data
+func (cache *Cache) Clear() *Cache {}
+
+// The GetMaxSize function is used to get the maximum size
+// of the cache. The function read locks the cache mutex
+// before returning the cache maxSize. Once the function
+// returns, the cache mutex is unlocked.
+
+// Returns the caches maximum size (int)
+func (cache *Cache) GetMaxSize() int {}
+
+// The GetCurrentSize function is used to get the current size
+// of the cache. The function read locks the cache mutex
+// before returning the cache currentSize. Once the function
+// returns, the cache mutex is unlocked.
+
+// Return the cache current size (int)
+func (cache *Cache) GetCurrentSize() int {}
+
 
 ```
 
