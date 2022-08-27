@@ -1,9 +1,7 @@
 package cache
 
 // Import strings package
-import (
-	"strings"
-)
+import "strings"
 
 /*
 

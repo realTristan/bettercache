@@ -1,9 +1,7 @@
 package cache
 
 // Import the strings package
-import (
-	"strings"
-)
+import "strings"
 
 // The TextRemove struct has two primary keys
 /* Query: string { "The string to find within values" } 				*/
