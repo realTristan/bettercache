@@ -75,12 +75,6 @@ func (cache *Cache) FullTextSearch(TS *TextSearch) []string {
 		// If the current cache.fullTextData index contains the
 		// provided query
 		if func() bool {
-			// Make sure the current cache value was set
-			// to true for full text search. If not, return false
-			// if !strings.StartsWith(":FT(true):") {
-			//	return false
-			// }
-
 			// If the user is not using strict mode
 			if !TS.StrictMode {
 				// Convert the cache data and the query to lowercase

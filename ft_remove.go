@@ -52,18 +52,6 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 			return res
 		} else
 
-		// Make sure the value is a string. If it isn't
-		// a string, skip the full text remove for this
-		// key and value
-
-		// if TypeOf(cache.fullTextData[i]) == string {
-
-		// Make sure the current cache value was set
-		// to true for full text search. If not, return false
-		// if !strings.StartsWith(":FT(true):") {
-		//	return false
-		// }
-
 		// If the current cache.fullTextData index contains the
 		// provided query
 		if strings.Contains(cache.fullTextData[i], TR.Query) {
