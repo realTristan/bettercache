@@ -47,12 +47,14 @@ func main() {
 	})
 
 	// Remove key2
-	fmt.Println(c.Get("key4").(string) + "++")
+	st := time.Now()
+	c.Get("key4")
+	fmt.Println(time.Since(st))
 	c.Remove("key2")
 	fmt.Println(c.Get("key3").(string) + "++")
 
 	// Full text search
-	st := time.Now()
+	st = time.Now()
 	r := c.FullTextSearch(&cache.TextSearch{
 		Query:               "value",
 		StrictMode:          true,
