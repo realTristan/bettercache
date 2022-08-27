@@ -70,9 +70,9 @@ func (cache *Cache) FullTextSearch(TS *TextSearch) []string {
 	var res []string
 
 	// Iterate over the cache data
-	for i := 0; i < len(cache.data); i++ {
+	for i := 0; i < len(cache.fullTextData); i++ {
 
-		// If the current cache.data index contains the
+		// If the current cache.fullTextData index contains the
 		// provided query
 		if func() bool {
 			// Make sure the current cache value was set
@@ -86,17 +86,17 @@ func (cache *Cache) FullTextSearch(TS *TextSearch) []string {
 				// Convert the cache data and the query to lowercase
 				// then return whether the cache data contains the query
 				return strings.Contains(
-					strings.ToLower(cache.data[i].(string)),
+					strings.ToLower(cache.fullTextData[i]),
 					strings.ToLower(TS.Query))
 			}
 
 			// If the user is using strict mode, then just return
 			// whether the cache data contains the query with no adjustments
-			return strings.Contains(cache.data[i].(string), TS.Query)
+			return strings.Contains(cache.fullTextData[i], TS.Query)
 		}() {
 			// Append value that contains the query to
 			// the result slice
-			res = append(res, strings.Split(cache.data[i].(string), ":")[2])
+			res = append(res, strings.Split(cache.fullTextData[i], ":")[1])
 		}
 	}
 	// Add the result to the previous search

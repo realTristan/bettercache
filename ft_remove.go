@@ -47,7 +47,7 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 	var res []string
 
 	// Iterate over the cache data
-	for i := 0; i < len(cache.data); i++ {
+	for i := 0; i < len(cache.fullTextData); i++ {
 		if len(res) >= TR.Amount && TR.Amount > 0 {
 			return res
 		} else
@@ -56,7 +56,7 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 		// a string, skip the full text remove for this
 		// key and value
 
-		// if TypeOf(cache.data[i]) == string {
+		// if TypeOf(cache.fullTextData[i]) == string {
 
 		// Make sure the current cache value was set
 		// to true for full text search. If not, return false
@@ -64,15 +64,15 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 		//	return false
 		// }
 
-		// If the current cache.data index contains the
+		// If the current cache.fullTextData index contains the
 		// provided query
-		if strings.Contains(cache.data[i].(string), TR.Query) {
+		if strings.Contains(cache.fullTextData[i], TR.Query) {
 			// Split the cache value by ':' to bypass
-			// the :{key_name}:FT(true):
-			var split []string = strings.Split(cache.data[i].(string), ":")
+			// the {key_name}:
+			var split []string = strings.Split(cache.fullTextData[i], ":")
 			// Append value that contains the query to
 			// the result slice
-			res = append(res, split[2])
+			res = append(res, split[1])
 
 			// I decided to put this inside a function so that
 			// even if there's any errors in the Remove function,
@@ -86,7 +86,7 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 				defer cache.mutex.RLock()
 
 				// Remove the key from the cache
-				cache.Remove(split[1])
+				cache.Remove(split[0])
 			}()
 		}
 		//}
