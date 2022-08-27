@@ -40,36 +40,6 @@ func main() {
 		Value:    "value3",
 		FullText: true,
 	})
-	c.Set(&cache.SetData{
-		Key:      "key4",
-		Value:    "value4",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key5",
-		Value:    "value5",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key6",
-		Value:    "value6",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key7",
-		Value:    "value7",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key8",
-		Value:    "value8",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key9",
-		Value:    "value9",
-		FullText: true,
-	})
 
 	// Remove key2
 	c.Remove("key2")

@@ -23,11 +23,13 @@ type TextRemove struct {
 // slice, then remove the key from the cache.
 // Once the cache has been fully iterated over, the function
 // will return the { res: []string } slice.
-//
-/* >> Parameters */
-/* (cache: *Cache) FullTextRemove(TS: *TextRemove = &TextRemove{
-	Query               	string
-	Amount               	int
+
+// Removes keys in the cache depending on whether their values
+// contain the provided query
+/* Parameters */
+/* 	TS: *TextRemove = &TextRemove{
+		Query               	string
+		Amount               	int
 })*/
 //
 // If you want to remnove all the values, either call the FullTextRemoveAll()
@@ -96,6 +98,10 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 
 // The Full Text Remove All function utilizes the Full Text Remove function
 // to remove the keys whos values contain the provided query.
+
+// Removes all cache keys that contain the provided query in their values
+/* Paramters */
+/*	query: string { "The string to query for" } */
 func (cache *Cache) FullTextRemoveAll(query string) []string {
 	return cache.FullTextRemove(&TextRemove{
 		Query:  query,

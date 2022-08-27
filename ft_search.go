@@ -40,14 +40,19 @@ type TextSearch struct {
 // slice. Once the cache has been fully iterated over, the function
 // will return the { res: []string } slice.
 //
-/* >> Parameters */
-/* (cache: *Cache) FullTextSearch(TS: *TextSearch = &TextSearch{
-	Query               	string
-	Limit               	int
-	StrictMode          	bool
-	StorePreviousSearch 	bool
-	PreviousSearch      	map[string][]string
-})*/
+// If the user is not using strictmode it will set the cache value
+// and the provided query to lowercase
+
+// Performs a full text search using the cache values
+/* Parameters */
+/* 	TS: *TextSearch = &TextSearch{
+		Query               	string
+		Limit               	int
+		StrictMode          	bool
+		StorePreviousSearch 	bool
+		PreviousSearch      	map[string][]string
+})
+*/
 //
 // If you want to store the previous text search you made, you can set the
 // StorePreviousSearch to true. This will set the key in the previous search
