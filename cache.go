@@ -6,14 +6,16 @@ import (
 	"sync"
 )
 
-// The Cache struct has five primary keys (all unexported)
-/* size: int { "The map size" } */
+// The Cache struct has six primary keys
+/* CurrentSize: int { "The current map size" } */
+/* maxSize: int { "The maximum map size" } */
 /* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
 /* mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  */
 /* fullTextData: []string { "The Full Text Data Cache Values" } 					  */
 /* fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	*/
 type Cache struct {
-	size            int
+	currentSize     int
+	maxSize         int
 	mutex           *sync.RWMutex
 	fullTextData    []string
 	fullTextIndices map[interface{}]int
@@ -55,7 +57,8 @@ func Init(size int) *Cache {
 			mapData:         make(map[interface{}]interface{}, size),
 			fullTextData:    make([]string, size),
 			fullTextIndices: make(map[interface{}]int, size),
-			size:            size,
+			maxSize:         size,
+			currentSize:     0,
 		}
 	}
 	// Return a cache with no limit to it's
@@ -65,7 +68,8 @@ func Init(size int) *Cache {
 		mapData:         map[interface{}]interface{}{},
 		fullTextData:    []string{},
 		fullTextIndices: make(map[interface{}]int),
-		size:            size,
+		maxSize:         size,
+		currentSize:     0,
 	}
 }
 
@@ -122,6 +126,8 @@ func (cache *Cache) Set(SD *SetData) {
 		// index the key value is at.
 		cache.mapData[SD.Key] = SD.Value
 	}
+	// Increase the current cache size
+	cache.currentSize++
 }
 
 // The ExistsinFullText function is used for checking whether a key
@@ -237,7 +243,7 @@ func (cache *Cache) Get(key string) interface{} {
 // using it's corresponding key. The function full locks the mutex
 // before modifying the cache.mainData, removing the cache value.
 //
-// Once the cache.mainData value is removed, the function moves onto
+// Once the cache.mapData value is removed, the function moves onto
 // iterating through the cache.mainIndices map reducing all cache indices
 // that are post-the-removed-value. The function then returns the
 // removed value. Once the function returns, the cache mutex is unlocked.
@@ -255,6 +261,9 @@ func (cache *Cache) Remove(key interface{}) interface{} {
 
 	// Check if the value is not a full text value
 	if cache.ExistsInMap(key) {
+		cache.currentSize--
+
+		// Create the remvoedValue for return
 		var removedValue interface{} = cache.mapData[key]
 
 		// Delete key from cache.mainIndices map
@@ -269,6 +278,8 @@ func (cache *Cache) Remove(key interface{}) interface{} {
 
 	// Else if the key exists in the full text data
 	if cache.ExistsInFullText(key) {
+		cache.currentSize--
+
 		// Remove key from the cache slice
 		cache.fullTextData = append(cache.fullTextData[:cache.fullTextIndices[key]],
 			cache.fullTextData[cache.fullTextIndices[key]+1:]...)
@@ -294,8 +305,8 @@ func (cache *Cache) Remove(key interface{}) interface{} {
 
 // The Show function is used for getting the cache data.
 // The function read locks the mutex then returns the
-// cache.mainData. Once the function has returned, the
-// mutex unlocks
+// cache.mapData and the cache.fullTextData,
+// Once the function has returned, the mutex unlocks
 
 // Show the cache
 /* Returns 							*/
@@ -311,7 +322,7 @@ func (cache *Cache) Show() (map[interface{}]interface{}, []string) {
 
 // The ShowFTIndices function is used for getting the cache
 // slice indices. The function read locks the mutex
-// then returns the cache.mainIndices. Once the function has returned,
+// then returns the cache.fullTextIndices. Once the function has returned,
 // the mutex unlocks
 
 // Show the cache
@@ -333,7 +344,7 @@ func (cache *Cache) ShowFTIndices() map[interface{}]int {
 //
 // The function then returns the slice of keys. Once the
 // function returns, the cache mutex is unlocked
-//
+
 // Returns all the cache keys in a slice
 //
 /* Returns 							*/
@@ -372,5 +383,35 @@ func (cache *Cache) Clear() *Cache {
 	defer cache.mutex.Unlock()
 
 	// Reset the cache variables
-	return Init(cache.size)
+	return Init(cache.maxSize)
+}
+
+// The GetMaxSize function is used to get the maximum size
+// of the cache. The function read locks the cache mutex
+// before returning the cache maxSize. Once the function
+// returns, the cache mutex is unlocked.
+
+// Returns the caches maximum size (int)
+func (cache *Cache) GetMaxSize() int {
+	// Mutex locking
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
+
+	// Return the caches maximum size
+	return cache.maxSize
+}
+
+// The GetCurrentSize function is used to get the current size
+// of the cache. The function read locks the cache mutex
+// before returning the cache currentSize. Once the function
+// returns, the cache mutex is unlocked.
+
+// Return the cache current size (int)
+func (cache *Cache) GetCurrentSize() int {
+	// Mutex locking
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
+
+	// Return the caches maximum size
+	return cache.currentSize
 }
