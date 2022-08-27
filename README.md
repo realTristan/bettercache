@@ -90,6 +90,94 @@ type SetData struct {
 	FullText bool
 }
 
+// The TextRemove struct has two primary keys
+/* Query: string { "The string to find within values" } 				*/
+/* Amount: int { "The amount of keys to remove (Set to -1 for all)" }	*/
+type TextRemove struct {
+	Query  string
+	Amount int
+}
+
+// The TextSearch struct contains five primary keys
+/* Query: string { "The string to search for in the cache values" } 		*/
+/* Limit: int { "The amount of search results. (Set to -1 for no limit)" }  */
+/* StrictMode: bool { "Set to false to ignore caps in query comparisons" }  */
+/* StorePreviousSearch: bool { "Set to true to keep previous query's" } 	*/
+/* PreviousSearch: map[string][]string { "The Previous Searches" } 			*/
+type TextSearch struct {
+	Query               string
+	Limit               int
+	StrictMode          bool
+	StorePreviousSearch bool
+	PreviousSearch      map[string][]string
+}
+
+// The Full Text Search function is used to find all cache values
+// that contain the provided query.
+//
+// The Full Text Search function iterates over the cache slice
+// and uses the strings.Contains function to check whether
+// the cache value contains the query. If the value contains the
+// query, it will append the cache value to the { res: []string }
+// slice. Once the cache has been fully iterated over, the function
+// will return the { res: []string } slice.
+//
+// If the user is not using strictmode it will set the cache value
+// and the provided query to lowercase
+
+// Performs a full text search using the cache values
+/* Parameters */
+/* 	TS: *TextSearch = &TextSearch{
+		Query               	string
+		Limit               	int
+		StrictMode          	bool
+		StorePreviousSearch 	bool
+		PreviousSearch      	map[string][]string
+})
+*/
+//
+// If you want to store the previous text search you made, you can set the
+// StorePreviousSearch to true. This will set the key in the previous search
+// to the provided TextSearch.Query and the value to the result slice.
+//
+/* >> Returns 			*/
+/* res: []string	 	*/
+func (cache *Cache) FullTextSearch(TS *TextSearch) []string {}
+
+// The Full Text Remove function is used to find all cache values
+// that contain the provided query and remove their keys from the cache
+//
+// The Full Text Remove function iterates over the cache slice
+// and uses the strings.Contains function to check whether
+// the cache value contains the query. If the value contains the
+// query, it will append the cache value to the { res: []string }
+// slice, then remove the key from the cache.
+// Once the cache has been fully iterated over, the function
+// will return the { res: []string } slice.
+
+// Removes keys in the cache depending on whether their values
+// contain the provided query
+/* Parameters */
+/* 	TS: *TextRemove = &TextRemove{
+		Query               	string
+		Amount               	int
+})*/
+//
+// If you want to remnove all the values, either call the FullTextRemoveAll()
+// function or set the TextRemove.Amount to -1
+//
+/* >> Returns       */
+/* res: []string    */
+func (cache *Cache) FullTextRemove(TR *TextRemove) []string {}
+
+// The Full Text Remove All function utilizes the Full Text Remove function
+// to remove the keys whos values contain the provided query.
+
+// Removes all cache keys that contain the provided query in their values
+/* Paramters */
+/*	query: string { "The string to query for" } */
+func (cache *Cache) FullTextRemoveAll(query string) []string {}
+
 // The Init function is used for initalizing the Cache struct
 // and returning the newly created cache object.
 // You can create the cache by yourself, but using the Init()
