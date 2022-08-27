@@ -68,6 +68,9 @@ func main() {
 		Query:  "value",
 		Amount: 1,
 	})
+
+	c.Flush("./BetterCache")
+
 	fmt.Println(fr)
 	fmt.Println(c.Show())
 	Map_VS_Slice()

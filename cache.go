@@ -16,7 +16,7 @@ type Cache struct {
 	size            int
 	mutex           *sync.RWMutex
 	fullTextData    []string
-	fullTextIndices map[string]int
+	fullTextIndices map[interface{}]int
 	mapData         map[interface{}]interface{}
 }
 
@@ -27,7 +27,7 @@ type Cache struct {
 // WARNING
 /* If FullText is set to true, it converts the Value to a string	*/
 type SetData struct {
-	Key      string
+	Key      interface{}
 	Value    interface{}
 	FullText bool
 }
@@ -54,7 +54,7 @@ func Init(size int) *Cache {
 			mutex:           &sync.RWMutex{},
 			mapData:         make(map[interface{}]interface{}, size),
 			fullTextData:    make([]string, size),
-			fullTextIndices: make(map[string]int, size),
+			fullTextIndices: make(map[interface{}]int, size),
 			size:            size,
 		}
 	}
@@ -64,7 +64,7 @@ func Init(size int) *Cache {
 		mutex:           &sync.RWMutex{},
 		mapData:         map[interface{}]interface{}{},
 		fullTextData:    []string{},
-		fullTextIndices: make(map[string]int),
+		fullTextIndices: make(map[interface{}]int),
 		size:            size,
 	}
 }
@@ -135,7 +135,7 @@ func (cache *Cache) Set(SD *SetData) {
 //
 /* Returns 								*/
 /* 	doesExist: bool 					*/
-func (cache *Cache) ExistsInFullText(key string) bool {
+func (cache *Cache) ExistsInFullText(key interface{}) bool {
 	// Check if the key exists within the cache.fullTextIndices
 	if _, t := cache.fullTextIndices[key]; t {
 		return true
@@ -150,11 +150,11 @@ func (cache *Cache) ExistsInFullText(key string) bool {
 
 // Returns whether the provided key exists in the cache
 /* Parameters 							*/
-/* 	key: string { "The Cache Key" } 	*/
+/* 	key: interface{} { "The Cache Key" } 	*/
 //
 /* Returns 								*/
 /* 	doesExist: bool 					*/
-func (cache *Cache) ExistsInMap(key string) bool {
+func (cache *Cache) ExistsInMap(key interface{}) bool {
 	// Check if the key exists within the cache.fullTextIndices
 	if _, t := cache.mapData[key]; t {
 		return true
@@ -248,7 +248,7 @@ func (cache *Cache) Get(key string) interface{} {
 //
 /* Returns 							*/
 /* 	removedValue: interface{} 		*/
-func (cache *Cache) Remove(key string) interface{} {
+func (cache *Cache) Remove(key interface{}) interface{} {
 	// Mutex locking
 	cache.mutex.Lock()
 	defer cache.mutex.Unlock()
@@ -317,7 +317,7 @@ func (cache *Cache) Show() (map[interface{}]interface{}, []string) {
 // Show the cache
 /* Returns 								*/
 /* 	cache.mainIndices: map[string]int 		*/
-func (cache *Cache) ShowFTIndices() map[string]int {
+func (cache *Cache) ShowFTIndices() map[interface{}]int {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
@@ -355,17 +355,18 @@ func (cache *Cache) ShowKeys() []interface{} {
 		keys[i] = k
 		i++
 	}
+	// Return the keys slice
 	return keys
 }
 
-// The Flush function is used to clear the cache
+// The Clear function is used to clear the cache
 // data and the cache indices. The function locks
 // the cache mutex before resetting the cache data
 // and the cache indices. Once the function returns
 // the cache mutex is unlocked
 
 // Clear the cache data
-func (cache *Cache) Flush() *Cache {
+func (cache *Cache) Clear() *Cache {
 	// Mutex locking
 	cache.mutex.Lock()
 	defer cache.mutex.Unlock()
