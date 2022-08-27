@@ -1,125 +1,105 @@
 package cache
 
-import "fmt"
+// Import strings package
+import (
+	"strings"
+)
 
-// The TextSearch struct contains three primary keys
-/* Query: []byte -> What to query for									*/
-/* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
-/* Limit: int -> The number of results to return						*/
+/*
+
+Notes:
+Search how to store a type in a variable
+
+then in the text search struct store it as SearchType
+and when converting the interface{}, instead of .(string)
+use .(SearchType)
+
+*/
+
+// The TextSearch struct contains five primary keys
+/* Query: string { "The string to search for in the cache values" } 		*/
+/* Limit: int { "The amount of search results. (Set to -1 for no limit)" }  */
+/* StrictMode: bool { "Set to false to ignore caps in query comparisons" }  */
+/* StorePreviousSearch: bool { "Set to true to keep previous query's" } 	*/
+/* PreviousSearch: map[string][]string { "The Previous Searches" } 			*/
 type TextSearch struct {
-	Query      []byte
-	StrictMode bool
-	Limit      int
+	Query               string
+	Limit               int
+	StrictMode          bool
+	StorePreviousSearch bool
+	PreviousSearch      map[string][]string
 }
 
-// The isLetter() function returns whether the provided
-// character is a letter or not.
-func isLetter(c byte) bool {
-	return (c >= 65 && c <= 90) || (c >= 97 && c <= 122)
-}
-
-// The equalCharAtIndex() returns whether the characters
-// at the given index are equal to eachother
+// The Full Text Search function is used to find all cache values
+// that contain the provided query.
 //
-// If not StrictMode then it doesn't matter whether the
-// character is uppercase/lowercase
+// The Full Text Search function iterates over the cache slice
+// and uses the strings.Contains function to check whether
+// the cache value contains the query. If the value contains the
+// query, it will append the cache value to the { res: []string }
+// slice. Once the cache has been fully iterated over, the function
+// will return the { res: []string } slice.
 //
-// i: cache.data index
-// n: query index
-func (cache *Cache) equalCharAtIndex(i int, n int, TS *TextSearch) bool {
-	// Ensure the character is a letter and check
-	// Whether strict mode is disabled
-	if !TS.StrictMode && isLetter(cache.data[i]) {
-		return cache.data[i]-32 == TS.Query[n] ||
-			cache.data[i]+32 == TS.Query[n] ||
-			cache.data[i] == TS.Query[n]
-	}
-	// Return the strict mode result
-	return cache.data[i] == TS.Query[n]
-}
-
-// The FullTextSearch() function iterates through the
-// cache data and returns the json value of a key.
-// This value contains the Query defined in the provided
-// TextSearch object
+/* >> Parameters */
+/* (cache: *Cache) FullTextSearch(TS: *TextSearch = &TextSearch{
+	Query               	string
+	Limit               	int
+	StrictMode          	bool
+	StorePreviousSearch 	bool
+	PreviousSearch      	map[string][]string
+})*/
 //
-// To ensure safety, the cache data is locked then unlocked once
-// no longer being used
-func (cache *Cache) FullTextSearch(TS TextSearch) []string {
-	// Lock/Unlock the mutex
+// If you want to store the previous text search you made, you can set the
+// StorePreviousSearch to true. This will set the key in the previous search
+// to the provided TextSearch.Query and the value to the result slice.
+//
+/* >> Returns 			*/
+/* res: []string	 	*/
+func (cache *Cache) FullTextSearch(TS *TextSearch) []string {
+	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
 
-	// Define Variables
-	var (
-		// Result -> Array with all maps containing the query
-		Result []string
-		// mapStart -> Track opening bracket
-		mapStart int = -1
-		// valueIndex -> Track the index of the TS.Query
-		// This is used for checking whether the Query is in
-		// the middle of the cache key start and the cache key end
-		valueIndex int = -1
-		// index -> Track the index of the TS.Query
-		index int = 0
-		// Track the length of the data
-		dataLength = []byte{}
-	)
+	// res -> The result slice containing the values
+	// that contain the TextSearch.Query
+	var res []string
 
-	// Iterate over the lowercase cache string
-	for i := 1; i < len(cache.data); i++ {
+	// Iterate over the cache data
+	for i := 0; i < len(cache.data); i++ {
 
-		// Break the loop if over the text search limit
-		if TS.Limit > 0 && len(Result) >= TS.Limit {
-			break
-		}
+		// If the current cache.data index contains the
+		// provided query
+		if func() bool {
+			// Make sure the current cache value was set
+			// to true for full text search. If not, return false
+			// if !strings.StartsWith(":FT(true):") {
+			//	return false
+			// }
 
-		// Check if the strings are equal
-		if cache.equalCharAtIndex(i, index, &TS) {
-			index++
-		} else {
-			// Reset the index
-			index = 0
-		}
-		// Check if the key is present and the current
-		// index is standing at that key
-		if index == len(TS.Query) && valueIndex < 0 {
-			valueIndex = i
-			index = 0
-		}
-
-		// Check if current index is the start of a map
-		if cache.data[i] == '{' {
-			// Make sure the map start has NOT been established
-			if mapStart == -1 {
-				mapStart = i
+			// If the user is not using strict mode
+			if !TS.StrictMode {
+				// Convert the cache data and the query to lowercase
+				// then return whether the cache data contains the query
+				return strings.Contains(
+					strings.ToLower(cache.data[i].(string)),
+					strings.ToLower(TS.Query))
 			}
-			// Make sure the datalength is currently zero
-			if mapStart > 0 && len(dataLength) == 0 {
-				dataLength = cache.data[mapStart-2 : i]
-			}
-		} else
 
-		// Check if the current index is the end of the map
-		// Also Make sure the map start has been established
-		if cache.data[i] == '}' && mapStart > 0 {
-
-			// Check if the current index is the end of the data
-			if fmt.Sprint(i-mapStart-1) == string(dataLength) {
-				// Check whether the query index is in between the map start
-				// and the map end
-				if valueIndex > mapStart && valueIndex < i+1 {
-
-					// Append the data to the result array
-					Result = append(Result, string(cache.data[mapStart+1:i]))
-
-				}
-				// Reset indexing variables
-				dataLength = []byte{}
-				mapStart, valueIndex = -1, -1
-			}
+			// If the user is using strict mode, then just return
+			// whether the cache data contains the query with no adjustments
+			return strings.Contains(cache.data[i].(string), TS.Query)
+		}() {
+			// Append value that contains the query to
+			// the result slice
+			res = append(res, strings.Split(cache.data[i].(string), ":")[2])
 		}
 	}
-	// Return the result
-	return Result
+	// Add the result to the previous search
+	// if the user set the previous search bool
+	// to true.
+	if TS.StorePreviousSearch {
+		TS.PreviousSearch[TS.Query] = res
+	}
+	// Return the result slice
+	return res
 }

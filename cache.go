@@ -1,142 +1,217 @@
 package cache
 
-// Import modules
+// Import Packages
 import (
-	"bytes"
 	"fmt"
 	"sync"
-	"time"
 )
 
-// The Cache struct contains three primary keys
-/* Data: []byte -> The Cache Data in Bytes						 	 */
-/* Mutex: *sync.Mutex -> Used for locking/unlocking the data 	 	 */
-/* MaxSize int -> The cache max size 								 */
+// The Cache struct has three primary keys (all unexported)
+/* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
+/* data: []string { "The Cache Values" } 											  */
+/* ftData: []int { "The Indexes to use for full text functions" }					  */
+/* index: map[string]int { "The Cache Keys holding the indexes of the Cache Values" } */
 type Cache struct {
-	data    []byte
-	mutex   *sync.RWMutex
-	MaxSize int
+	mutex *sync.RWMutex
+	data  []interface{}
+	index map[string]int
 }
 
-// The initData() function returns a the cache
-// byte slice depending on the provided size
-func initData(size int) []byte {
-	// Limited Size
-	if size > 0 {
-		var data = make([]byte, size+1)
-		data[0] = '*'
-		return data
-
-	}
-	// Unlimited size
-	return []byte{'*'}
+// The SetData struct has three primary keys
+/* */
+type SetData struct {
+	Key      string
+	Value    interface{}
+	FullText bool
 }
 
-// The Init() function creates the Cache
-// object depending on what was entered for
-// the size of the cache
+// The Init function is used for initalizing the Cache struct
+// and returning the newly created cache object.
+// You can create the cache by yourself, but using the Init()
+// function is much easier
+//
+/* >> Parameters 										*/
+/* size: int { "The Size of the cache map and slice" }  */
+//
+/* >> Returns 			*/
+/* cache: *Cache 		*/
 func Init(size int) *Cache {
-	// Return the new cache
+	// If the user passed a size variable greater
+	// tham zero.
+	if size > 0 {
+		// If so, it will use the make() function
+		// for created a data slice and index map
+		// with a set size
+		return &Cache{
+			mutex: &sync.RWMutex{},
+			data:  make([]interface{}, size),
+			index: make(map[string]int, size),
+		}
+	}
+	// Return a cache with no limit to it's
+	// size. It is recommended that you provide a size.
 	return &Cache{
-		data:    initData(size),
-		mutex:   &sync.RWMutex{},
-		MaxSize: size,
+		mutex: &sync.RWMutex{},
+		data:  []interface{}{},
+		index: make(map[string]int),
 	}
 }
 
-// The Exists() function returns whether the
-// provided key exists in the cache
+// The Set function is used for setting a new value inside
+// the cache data. The Set function locks the cache mutex to
+// prevent data overwriting before checking whether the provided
+// key already exists. If it does, it will call the Remove() function
+// to remove that key from the cache.
 //
-// No read lock/unlock because this function isn't
-// as heavy as the ones that do utilize the read locks
-func (cache *Cache) Exists(key string) bool {
-	return len(cache.Get(key)) > 0
-}
-
-// The GetByteSize() function returns the current size of the
-// cache bytes
+// Once finished with the removal process, the function modifies
+// the cache data, adding the value to the slice and adds the slice
+// index along with the key to the cache index map
 //
-// No read lock/unlock because this function isn't
-// as heavy as the ones that do utilize the read locks
-func (cache *Cache) GetByteSize() int {
-	return len(cache.data)
-}
-
-// The Expire() function removes the provided key
-// from the cache after the given time
-//
-// Suggested to run this function in your
-// own monitored goroutine
-func (cache *Cache) Expire(key string, _time time.Duration) {
-	time.Sleep(_time)
-	cache.Remove(key)
-}
-
-// The Flush() function resets the cache
-// data. Make sure to use this function when
-// clearing the cache!
-func (cache *Cache) Flush() {
+/* >> Parameters 										 			    */
+/* key: string { "The Cache Key" }  					 			    */
+/* value: interface{} { "The value to set the key to" }  			    */
+/* fullText: bool { "Whether to add the value to the full text slice" } */
+func (cache *Cache) Set(SD *SetData) {
+	// Mutex locking
 	cache.mutex.Lock()
 	defer cache.mutex.Unlock()
 
-	// Reset the cache data
-	cache.data = []byte{'*'}
+	// If key exists
+	if _, t := cache.index[SD.Key]; t {
+		// I decided to put this inside a function so that
+		// even if there's any errors in the Remove function,
+		// the mutex will still relock once the function returns
+		func() {
+			// Unlock the mutex so the remove function can
+			// remove the key from the cache
+			cache.mutex.Unlock()
+			// Then re-lock the mutex once the key has
+			// been removed
+			defer cache.mutex.Lock()
+
+			// Remove the key from the cache
+			cache.Remove(SD.Key)
+		}()
+	}
+
+	// Set the key in the cache index map to the
+	// index the key value is at.
+	cache.index[SD.Key] = len(cache.data)
+
+	// If the user set the AddToFullText to true
+	// then add the cache data index to the ftData slice
+	if SD.FullText {
+		// Add the value into the cache data slice
+		cache.data = append(cache.data,
+			fmt.Sprintf("FT(true):%s:%v", SD.Key, SD.Value))
+	} else {
+		// Add the value into the cache data slice
+		cache.data = append(cache.data, SD.Value)
+	}
 }
 
-// The ShowBytes() function returns the cache bytes
-//
-// No read lock/unlock because this function isn't
-// as heavy as the ones that do utilize the read locks
-func (cache *Cache) ShowBytes() []byte {
+// Check if key exists
+func (cache *Cache) Exists(key string) bool {
+	// Mutex locking
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
+
+	// Check if the key exists within the cache.index
+	if _, t := cache.index[key]; t {
+		// It does
+		return true
+	}
+	// It does not
+	return false
+}
+
+// Get a cache key
+func (cache *Cache) Get(key string) interface{} {
+	// Mutex locking
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
+
+	// Make sure the key exists before returning
+	// the key's value
+	// If you don't check whether the key exists before
+	// then it will return the key prior to the given in
+	// the cache.index map
+	if cache.Exists(key) {
+		// Return the key value
+		return cache.data[cache.index[key]]
+	}
+	// Return empty string
+	return ""
+}
+
+// Set a cache key
+func (cache *Cache) Remove(key string) {
+	// Mutex locking
+	cache.mutex.Lock()
+	defer cache.mutex.Unlock()
+
+	// Remove key from the cache slice
+	cache.data = append(cache.data[:cache.index[key]],
+		cache.data[cache.index[key]+1:]...)
+
+	// Iterate over the map keys
+	for k := range cache.index {
+		if cache.index[k] > cache.index[key] {
+			cache.index[k] -= 1
+		}
+	}
+	// Delete key from cache.index map
+	delete(cache.index, key)
+}
+
+// Return the cache values
+func (cache *Cache) Show() []interface{} {
+	// Mutex locking
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
+
+	// Return the cache values
 	return cache.data
 }
 
-// The Show() function returns the cache as a string
-//
-// No read lock/unlock because this function isn't
-// as heavy as the ones that do utilize the read locks
-func (cache *Cache) Show() string {
-	return string(cache.data)
+// Returns the index map
+func (cache *Cache) ShowIndexMap() map[string]int {
+	// Mutex locking
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
+
+	// Return the cache index map
+	return cache.index
 }
 
-// The Set() function sets the value for the
-// provided key inside the cache.
-//
-// Example: {"key1": "my name is tristan!"},
-//
-// Returns the removed value of the previously
-// defined key
-func (cache *Cache) Set(key string, data string) string {
+// Return the cache keys
+func (cache *Cache) ShowKeys() []string {
+	// Mutex locking
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
+
 	// Define Variables
 	var (
-		// removedValue -> The previous value removed
-		removedValue string = ""
-		// keyBytes -> The modified key in a bytes slice
-		keyBytes []byte = []byte(fmt.Sprintf(`%s:%d{`, key, len(data)))
+		// keys -> The slice containing the keys
+		keys []string = make([]string, len(cache.index))
+		// i -> Track the index for setting the keys
+		i int = 0
 	)
-
-	// I put this in it's own function so that it can
-	// use defer for unlocking the mutex.
-	// This is best because if there's any errors, they
-	// won't prevent the mutex from unlocking
-	if func() bool {
-		cache.mutex.RLock()
-		defer cache.mutex.RUnlock()
-
-		// Check if the key already exists
-		return bytes.Contains(cache.data, []byte(key))
-	}() {
-		// Remove the previous key
-		removedValue = cache.Remove(key)
+	// Iterate over the cache index map
+	for k := range cache.index {
+		keys[i] = k
+		i++
 	}
-	// Lock/Unlock the mutex
+	return keys
+}
+
+// Flush the cache data and the cache indexes
+func (cache *Cache) Flush() {
+	// Mutex locking
 	cache.mutex.Lock()
 	defer cache.mutex.Unlock()
 
-	// Set the byte cache value
-	cache.data = append(
-		cache.data, append(keyBytes, append([]byte(data), '}')...)...)
-
-	// Return the removed value
-	return removedValue
+	// Reset the cache variables
+	cache.data = []interface{}{}
+	cache.index = map[string]int{}
 }
