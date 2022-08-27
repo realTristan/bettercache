@@ -23,56 +23,7 @@ then post anything from that class to that github repo
 // Main function
 func main() {
 	c := cache.Init(-1)
-
-	// Set keys
-	c.Set(&cache.SetData{
-		Key:      "key1",
-		Value:    "value1",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key2",
-		Value:    "value2",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key3",
-		Value:    "value3",
-		FullText: true,
-	})
-	c.Set(&cache.SetData{
-		Key:      "key4",
-		Value:    "value4",
-		FullText: false,
-	})
-
-	// Remove key2
-	st := time.Now()
-	c.Get("key4")
-	fmt.Println(time.Since(st))
-	c.Remove("key2")
-	fmt.Println(c.Get("key3").(string) + "++")
-
-	// Full text search
-	st = time.Now()
-	r := c.FullTextSearch(&cache.TextSearch{
-		Query:               "value",
-		StrictMode:          true,
-		StorePreviousSearch: false,
-	})
-	fmt.Println(time.Since(st))
-	fmt.Println(r)
-
-	// Full text remove
-	fr := c.FullTextRemove(&cache.TextRemove{
-		Query:  "value",
-		Amount: 1,
-	})
-
-	c.Flush("./BetterCache")
-
-	fmt.Println(fr)
-	fmt.Println(c.Show())
+	c.TestFullTextSearch(10000, "1111111111111111111111111", "1", false)
 	Map_VS_Slice()
 }
 

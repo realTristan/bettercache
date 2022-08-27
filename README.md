@@ -14,10 +14,10 @@ Lightning Fast Caching System for Go.
 
 ```
     (1) Cache Size: 25 -> ~779ns
-    (10) Cache Size: 250 -> ~11.246µs
-    (100) Cache Size: 2,500 -> ~28.786µs
-    (1,000) Cache Size: 25,000 -> ~230.387µs
-    (10,000) Cache Size: 250,000 -> ~2.116ms
+    (10) Cache Size: 250 -> ~3.203µs
+    (100) Cache Size: 2,500 -> ~13.324µs
+    (1,000) Cache Size: 25,000 -> ~160.049µs
+    (10,000) Cache Size: 250,000 -> ~2.059ms
 ```
 
 # Quick Usage
