@@ -1,5 +1,7 @@
 package cache
 
+import "fmt"
+
 // The TextSearch struct contains three primary keys
 /* Query: []byte -> What to query for									*/
 /* StrictMode: bool -> Whether to convert the cache data to lowercase	*/
@@ -24,18 +26,16 @@ func isLetter(c byte) bool {
 //
 // i: cache.data index
 // n: query index
-// q: query bytes
-// sm: strict mode
-func (cache *Cache) equalCharAtIndex(i int, n int, q []byte, sm bool) bool {
+func (cache *Cache) equalCharAtIndex(i int, n int, TS *TextSearch) bool {
 	// Ensure the character is a letter and check
 	// Whether strict mode is disabled
-	if !sm && isLetter(cache.data[i]) {
-		return cache.data[i]-32 == q[n] ||
-			cache.data[i]+32 == q[n] ||
-			cache.data[i] == q[n]
+	if !TS.StrictMode && isLetter(cache.data[i]) {
+		return cache.data[i]-32 == TS.Query[n] ||
+			cache.data[i]+32 == TS.Query[n] ||
+			cache.data[i] == TS.Query[n]
 	}
 	// Return the strict mode result
-	return cache.data[i] == q[n]
+	return cache.data[i] == TS.Query[n]
 }
 
 // The FullTextSearch() function iterates through the
@@ -62,6 +62,8 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		valueIndex int = -1
 		// index -> Track the index of the TS.Query
 		index int = 0
+		// Track the length of the data
+		dataLength = []byte{}
 	)
 
 	// Iterate over the lowercase cache string
@@ -73,7 +75,7 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 		}
 
 		// Check if the strings are equal
-		if cache.equalCharAtIndex(i, index, TS.Query, TS.StrictMode) {
+		if cache.equalCharAtIndex(i, index, &TS) {
 			index++
 		} else {
 			// Reset the index
@@ -92,23 +94,30 @@ func (cache *Cache) FullTextSearch(TS TextSearch) []string {
 			if mapStart == -1 {
 				mapStart = i
 			}
+			// Make sure the datalength is currently zero
+			if mapStart > 0 && len(dataLength) == 0 {
+				dataLength = cache.data[mapStart-2 : i]
+			}
 		} else
 
 		// Check if the current index is the end of the map
 		// Also Make sure the map start has been established
 		if cache.data[i] == '}' && mapStart > 0 {
 
-			// Check whether the query index is in between the map start
-			// and the map end
-			if valueIndex > mapStart && valueIndex < i+1 {
+			// Check if the current index is the end of the data
+			if fmt.Sprint(i-mapStart-1) == string(dataLength) {
+				// Check whether the query index is in between the map start
+				// and the map end
+				if valueIndex > mapStart && valueIndex < i+1 {
 
-				// Append the data to the result array
-				Result = append(Result, string(cache.data[mapStart+1:i]))
+					// Append the data to the result array
+					Result = append(Result, string(cache.data[mapStart+1:i]))
 
-				// Reste the indexing variables
+				}
+				// Reset indexing variables
+				dataLength = []byte{}
 				mapStart, valueIndex = -1, -1
 			}
-
 		}
 	}
 	// Return the result

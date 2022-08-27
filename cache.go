@@ -15,7 +15,7 @@ import (
 type Cache struct {
 	data    []byte
 	mutex   *sync.RWMutex
-	maxSize int
+	MaxSize int
 }
 
 // The initData() function returns a the cache
@@ -40,7 +40,7 @@ func Init(size int) *Cache {
 	return &Cache{
 		data:    initData(size),
 		mutex:   &sync.RWMutex{},
-		maxSize: size,
+		MaxSize: size,
 	}
 }
 
@@ -54,12 +54,12 @@ func (cache *Cache) Exists(key string) bool {
 }
 
 // The GetByteSize() function returns the current size of the
-// cache bytes and the cache maximum size
+// cache bytes
 //
 // No read lock/unlock because this function isn't
 // as heavy as the ones that do utilize the read locks
-func (cache *Cache) GetByteSize() (int, int) {
-	return len(cache.data), cache.maxSize
+func (cache *Cache) GetByteSize() int {
+	return len(cache.data)
 }
 
 // The Expire() function removes the provided key
