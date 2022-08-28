@@ -18,14 +18,12 @@ use .(SearchType)
 /* Query: string { "The string to search for in the cache values" } 		*/
 /* Limit: int { "The amount of search results. (Set to -1 for no limit)" }  */
 /* StrictMode: bool { "Set to false to ignore caps in query comparisons" }  */
-/* StorePreviousSearch: bool { "Set to true to keep previous query's" } 	*/
-/* PreviousSearch: map[string][]string { "The Previous Searches" } 			*/
+/* PreviousQueries: map[string][]string { "The Previous Searches" } 			*/
 type TextSearch struct {
-	Query               string
-	Limit               int
-	StrictMode          bool
-	StorePreviousSearch bool
-	PreviousSearch      map[string][]string
+	Query           string
+	Limit           int
+	StrictMode      bool
+	PreviousQueries map[string][]string
 }
 
 // The Full Text Search function is used to find all cache values
@@ -47,14 +45,14 @@ type TextSearch struct {
 		Query               	string
 		Limit               	int
 		StrictMode          	bool
-		StorePreviousSearch 	bool
-		PreviousSearch      	map[string][]string
+		PreviousQueries      		map[string][]string
 })
 */
 //
 // If you want to store the previous text search you made, you can set the
-// StorePreviousSearch to true. This will set the key in the previous search
+// PreviousQueries map. This will set the key in the previous search
 // to the provided TextSearch.Query and the value to the result slice.
+// It is suggested to use a limited sized map.
 //
 /* >> Returns 			*/
 /* res: []string	 	*/
@@ -94,9 +92,43 @@ func (cache *Cache) FullTextSearch(TS *TextSearch) []string {
 	// Add the result to the previous search
 	// if the user set the previous search bool
 	// to true.
-	if TS.StorePreviousSearch {
-		TS.PreviousSearch[TS.Query] = res
+	if len(TS.PreviousQueries) > 0 {
+		TS.PreviousQueries[TS.Query] = res
 	}
 	// Return the result slice
 	return res
+}
+
+// The GetPreviousQueries function is used to return the
+// slice of values for a previous query
+//
+/* Paramters */
+/* query: string { "The Previous Query" } */
+//
+/* Returns */
+/* results: []string { "The Query Results" } */
+func (TS *TextSearch) GetPreviousQueries(query string) []string {
+	return TS.PreviousQueries[query]
+}
+
+// The GetPreviousQueries function is used to delete a
+// previous query from the PreviousQueries map
+//
+/* Paramters */
+/* query: string { "The Previous Query" } */
+func (TS *TextSearch) DeletePreviousQuery(query string) {
+	delete(TS.PreviousQueries, query)
+}
+
+// The ClearPreviousQueries function is used to reset
+// the previous queries map
+//
+/* Paramters */
+/* size: int { "The Size of PreviousQueries Map (Set to -1 for no limit)" } */
+func (TS *TextSearch) ClearPreviousQueries(size int) {
+	if size > 0 {
+		TS.PreviousQueries = make(map[string][]string)
+	} else {
+		TS.PreviousQueries = make(map[string][]string, size)
+	}
 }
