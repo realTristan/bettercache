@@ -23,7 +23,7 @@ then post anything from that class to that github repo
 // Main function
 func main() {
 	c := cache.Init(-1)
-	c.TestFullTextSearch(10000, "1111111111111111111111111", "1", false)
+	c.TestFullTextSearch(1, "1", "1", false)
 	Map_VS_Slice()
 }
 

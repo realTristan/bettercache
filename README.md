@@ -1,10 +1,10 @@
 # Better Cache ![Stars](https://img.shields.io/github/stars/realTristan/BetterCache?color=brightgreen) ![Watchers](https://img.shields.io/github/watchers/realTristan/BetterCache?label=Watchers)
 ![banner (5)](https://user-images.githubusercontent.com/75189508/186757681-6b7f97e8-ec37-448a-83cc-75106ed16309.png)
 
-Lightning Fast Caching System for Go.
+Modern Caching System for Go.
 
 # About
-- Better Cache is a native golang caching system that uses a slice for storing data. Because of this, we can perform lightning fast full text searches (within nanoseconds to milliseconds).
+- Better Cache is a Modern, Native golang caching system that utilizes slices for storing data. Because of this, we can perform lightning fast full text searches, full text removes, etc.
 
 # Benchmarks
 
