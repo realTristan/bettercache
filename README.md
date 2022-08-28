@@ -102,14 +102,12 @@ type TextRemove struct {
 /* Query: string { "The string to search for in the cache values" } 		*/
 /* Limit: int { "The amount of search results. (Set to -1 for no limit)" }  */
 /* StrictMode: bool { "Set to false to ignore caps in query comparisons" }  */
-/* StorePreviousSearch: bool { "Set to true to keep previous query's" } 	*/
-/* PreviousSearch: map[string][]string { "The Previous Searches" } 			*/
+/* PreviousQueries: map[string][]string { "The Previous Searches" } 			*/
 type TextSearch struct {
 	Query               string
 	Limit               int
 	StrictMode          bool
-	StorePreviousSearch bool
-	PreviousSearch      map[string][]string
+	PreviousQueries     map[string][]string
 }
 
 // The Full Text Search function is used to find all cache values
