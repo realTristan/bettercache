@@ -180,7 +180,8 @@ func (cache *Cache) ExistsInMap(key interface{}) bool {
 /* Returns 									*/
 /* 	doesExist: bool 						*/
 func (cache *Cache) Exists(key interface{}) bool {
-	return cache.ExistsInFullText(key) || cache.Clear().Exists(key)
+	// Checks the full text cache and the data map
+	return cache.ExistsInFullText(key) || cache.ExistsInMap(key)
 }
 
 // The Get function is used for return a value from the cache
@@ -200,20 +201,19 @@ func (cache *Cache) Exists(key interface{}) bool {
 /* Returns 									*/
 /* 	cacheValue: interface{} 				*/
 func (cache *Cache) Get(key interface{}) interface{} {
-	// Make sure the key exists before returning
-	// the key's value
-	// If you don't check whether the key exists before
-	// then it will return the key prior to the given in
-	// the cache.mainIndices map
+	// Check if the key exists in the full text data
 	if cache.ExistsInFullText(key) {
-		// Mutex locking
+		// Mutex locking/unlocking
 		cache.mutex.RLock()
 		defer cache.mutex.RUnlock()
 
 		// Return the full text cache string
 		return cache.fullTextData[cache.fullTextIndices[key]][len(fmt.Sprint(key))+1:]
-	} else if cache.ExistsInMap(key) {
-		// Mutex locking
+	} else
+
+	// The key exists in the cache data map
+	if cache.ExistsInMap(key) {
+		// Mutex locking/unlocking
 		cache.mutex.RLock()
 		defer cache.mutex.RUnlock()
 
