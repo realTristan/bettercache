@@ -5,6 +5,14 @@ import (
 	"os"
 )
 
+func getWrapper(o interface{}) string {
+	switch o.(type) {
+	case int:
+		return fmt.Sprintf("$INT(%v", o)
+	}
+	return fmt.Sprintf("$STR(%v", o)
+}
+
 // The flushToFile function is used to write all the
 // cache data to the BetterCache file.
 // In the future, there will be more options for
@@ -44,11 +52,10 @@ func (cache *Cache) flushToFile(path string) {
 
 		// Iterate over the cache map data
 		for k, v := range cache.mapData {
-
 			// Append the cache map key and value to the
 			// result byte array
 			result = append(result,
-				[]byte(fmt.Sprintf("$CACHE:%v:%s\n", k, v))...)
+				[]byte(fmt.Sprintf("$DATA:%v):%s)\n", getWrapper(k), getWrapper(v)))...)
 		}
 	}
 

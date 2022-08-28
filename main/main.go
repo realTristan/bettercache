@@ -23,7 +23,27 @@ then post anything from that class to that github repo
 // Main function
 func main() {
 	c := cache.Init(-1)
-	c.TestFullTextSearch(1, "1", "1", false)
+	//c.TestFullTextSearch(100, "value", "value", false)
+	for i := 0; i < 100; i++ {
+		if i%2 == 0 {
+			c.Set(&cache.SetData{
+				Key:      fmt.Sprintf("key%d", i),
+				Value:    fmt.Sprintf("value%d", i),
+				FullText: true,
+			})
+		} else {
+			c.Set(&cache.SetData{
+				Key:      fmt.Sprintf("key%d", i),
+				Value:    i,
+				FullText: false,
+			})
+		}
+	}
+
+	st := time.Now()
+	c.Flush("../BetterCache")
+	fmt.Println(time.Since(st))
+
 	Map_VS_Slice()
 }
 
