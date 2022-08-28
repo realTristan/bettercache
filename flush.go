@@ -1,13 +1,20 @@
 package cache
 
 import (
-	"bufio"
 	"fmt"
-	"log"
 	"os"
-	"strings"
 )
 
+// The flushToFile function is used to write all the
+// cache data to the BetterCache file.
+// In the future, there will be more options for
+// this file but as for now it will write to the file
+// whether the cache key+value is a full text key or a
+// regular cache map key. As well as it will write
+// the key and value
+//
+/* Paramters: */
+/* path: string { "The path to the BetterCache file" } */
 func (cache *Cache) flushToFile(path string) {
 	// If the BetterCache file doesn't exist
 	if _, err := os.Stat(path); err != nil {
@@ -49,45 +56,19 @@ func (cache *Cache) flushToFile(path string) {
 	os.WriteFile(path, result, 0644)
 }
 
-func (cache *Cache) handleCacheFileLine(path string, line string, lineCount int) {
-	cache.Set(&SetData{
-		Key:      "",
-		Value:    "",
-		FullText: strings.HasPrefix(line, "$FULLTEXT"),
-	})
-}
+// The Flush function locks the mutex before calling
+// the flushToFile function. Once the function has been
+// called and the Flush function returns, the mutex is unlocked
 
-func (cache *Cache) ReadFlush(path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	// Scan the file's lines
-	var scanner *bufio.Scanner = bufio.NewScanner(file)
-	var lineCount int = 0
-	for scanner.Scan() {
-		cache.handleCacheFileLine(path, scanner.Text(), lineCount)
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-/*
-use a json file instead
-
-
-
-*/
-
-// Flush the data to the BetterCache file
+// The Flush function is used to write the cache
+// data to a BetterCache file
+//
+/* Paramters: */
+/* 	path: string { "The path to the BetterCache file" } */
 func (cache *Cache) Flush(path string) {
 	// Mutex locking
-	cache.mutex.Lock()
-	defer cache.mutex.Unlock()
+	cache.mutex.RLock()
+	defer cache.mutex.RUnlock()
 
 	// Flush cache to BetterCache file
 	cache.flushToFile(path)

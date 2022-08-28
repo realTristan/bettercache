@@ -28,7 +28,7 @@ type Cache struct {
 // function is much easier
 
 // Initializes the cache object
-/* Parameters 												*/
+/* Parameters: 												*/
 /* 	size: int { "The Size of the cache map and slice" }  	*/
 //
 /* Returns 													*/
@@ -65,7 +65,7 @@ func Init(size int) *Cache {
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters 								*/
+/* Parameters: 								*/
 /* 	key: interface{} { "The Cache Key" } 	*/
 //
 /* Returns 									*/
@@ -84,7 +84,7 @@ func (cache *Cache) ExistsInFullText(key interface{}) bool {
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters 							*/
+/* Parameters: 							*/
 /* 	key: interface{} { "The Cache Key" } 	*/
 //
 /* Returns 								*/
@@ -103,7 +103,7 @@ func (cache *Cache) ExistsInMap(key interface{}) bool {
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters 								*/
+/* Parameters: 								*/
 /* 	key: interface{} { "The Cache Key" } 	*/
 //
 /* Returns 									*/
@@ -124,7 +124,7 @@ func (cache *Cache) Exists(key interface{}) bool {
 // the value by ':' and return the index[2] of it's result
 
 // Returns the cache value of the provided key
-/* Parameters 								*/
+/* Parameters: 								*/
 /* 	key: interface{} { "The Cache Key" } 	*/
 //
 /* Returns 									*/
@@ -163,7 +163,7 @@ func (cache *Cache) Get(key interface{}) interface{} {
 // removed value. Once the function returns, the cache mutex is unlocked.
 
 // Removes a key from the cache
-/* Parameters 								*/
+/* Parameters: 								*/
 /* 	key: interface{} { "The Cache Key" } 	*/
 //
 /* Returns 									*/

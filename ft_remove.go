@@ -24,7 +24,7 @@ type TextRemove struct {
 
 // Removes keys in the cache depending on whether their values
 // contain the provided query
-/* Parameters */
+/* Parameters: */
 /* 	TS: *TextRemove = &TextRemove{
 		Query               	string
 		Amount               	int

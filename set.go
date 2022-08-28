@@ -6,7 +6,7 @@ import "fmt"
 // The SetData struct has three primary keys
 /* Key: interface{} { "The Cache Key" }									*/
 /* Value: interface{} { "The Cache Value" }								*/
-/* FullText: interface{} { "Whether to enable full text functions " }	*/
+/* FullText: bool { "Whether to enable full text functions " }			*/
 // WARNING
 /* If FullText is set to true, it converts the Value to a string		*/
 type SetData struct {
@@ -26,11 +26,11 @@ type SetData struct {
 // index to the cache indices map
 
 // Sets a key to the provided value
-/* Parameters 										 			    		*/
-/* SD &SetData = *SetData{
-	Key: interface{},
-	Value: interface{},
-	FullText: bool,
+/* Parameters: */
+/* 	SD &SetData = *SetData{
+		Key: interface{},
+		Value: interface{},
+		FullText: bool,
 } */
 func (cache *Cache) Set(SD *SetData) {
 	// Mutex locking

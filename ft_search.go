@@ -40,7 +40,7 @@ type TextSearch struct {
 // and the provided query to lowercase
 
 // Performs a full text search using the cache values
-/* Parameters */
+/* Parameters: */
 /* 	TS: *TextSearch = &TextSearch{
 		Query               	string
 		Limit               	int
