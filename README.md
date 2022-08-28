@@ -341,6 +341,29 @@ func (cache *Cache) GetMaxSize() int {}
 // Return the cache current size (int)
 func (cache *Cache) GetCurrentSize() int {}
 
+// The GetPreviousQueries function is used to return the
+// slice of values for a previous query
+//
+/* Paramters */
+/* query: string { "The Previous Query" } */
+//
+/* Returns */
+/* results: []string { "The Query Results" } */
+func (TS *TextSearch) GetPreviousQueries(query string) []string {}
+
+// The GetPreviousQueries function is used to delete a
+// previous query from the PreviousQueries map
+//
+/* Paramters */
+/* query: string { "The Previous Query" } */
+func (TS *TextSearch) DeletePreviousQuery(query string) {}
+
+// The ClearPreviousQueries function is used to reset
+// the previous queries map
+//
+/* Paramters */
+/* size: int { "The Size of PreviousQueries Map (Set to -1 for no limit)" } */
+func (TS *TextSearch) ClearPreviousQueries(size int) {}
 
 ```
 
