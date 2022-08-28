@@ -126,12 +126,12 @@ type TextSearch struct {
 // Performs a full text search using the cache values
 // Parameters 
 // 	TS: *TextSearch = &TextSearch{
-		Query               	string
-		Limit               	int
-		StrictMode          	bool
-		StorePreviousSearch 	bool
-		PreviousSearch      	map[string][]string
-})
+//		Query               	string
+//		Limit               	int
+//		StrictMode          	bool
+//		StorePreviousSearch 	bool
+//		PreviousSearch      	map[string][]string
+//})
 
 //
 // If you want to store the previous text search you made, you can set the
@@ -157,9 +157,9 @@ func (cache *Cache) FullTextSearch(TS *TextSearch) []string {}
 // contain the provided query
 // Parameters 
 // 	TS: *TextRemove = &TextRemove{
-		Query               	string
-		Amount               	int
-})
+//		Query               	string
+//		Amount               	int
+//})
 //
 // If you want to remnove all the values, either call the FullTextRemoveAll()
 // function or set the TextRemove.Amount to -1
@@ -202,10 +202,10 @@ func Init(size int) *Cache {}
 // Sets a key to the provided value
 // Parameters: 
 // 	SD &SetData = *SetData{
-		Key: interface{},
-		Value: interface{},
-		FullText: bool,
-} 
+//		Key: interface{},
+//		Value: interface{},
+//		FullText: bool,
+//} 
 func (cache *Cache) Set(SD *SetData) {}
 
 // The ExistsinFullText function is used for checking whether a key
