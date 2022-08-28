@@ -31,7 +31,7 @@ import (
 
 func main() {
     // Initialize the cache
-    var Cache *cache.Cache = cache.Init(-1) // -1 (no pre defined size)
+    var Cache *cache.Cache = cache.Init(-1) // -1 (no size limit)
 
     // Add key1 to the cache
     Cache.Set(&cache.SetData{
@@ -49,7 +49,7 @@ func main() {
         Limit:      -1,                 // No limit
         Query:      []byte("value"),    // Search for "value"
         StrictMode: false,              // Ignore CAPS
-	})
+    })
     fmt.Println(res)
 
     // Remove key1 from the cache
