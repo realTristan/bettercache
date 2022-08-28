@@ -93,7 +93,7 @@ func (cache *Cache) TestFullTextSearch(
 	// Track speed
 	var startTime time.Time = time.Now()
 
-	// Perform the full text search
+	// Perform the full text search.
 	var result []string = cache.FullTextSearch(&TextSearch{
 		Limit:      -1,
 		Query:      searchFor,
