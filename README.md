@@ -34,7 +34,7 @@ func main() {
     var Cache *cache.Cache = cache.Init(-1) // -1 (no pre defined size)
 
     // Add key1 to the cache
-    Cache.Set(&SetData{
+    Cache.Set(&cache.SetData{
         Key:      "key1",       // The cache key
         Value:    "value1",     // The cache value
         FullText: true,         // If true, Value converts to a string
@@ -45,7 +45,7 @@ func main() {
     fmt.Println(data)
 
     // Full Text Search for the key's contents
-    var res []string = Cache.FullTextSearch(cache.TextSearch{
+    var res []string = Cache.FullTextSearch(&cache.TextSearch{
         Limit:      -1,                 // No limit
         Query:      []byte("value"),    // Search for "value"
         StrictMode: false,              // Ignore CAPS
