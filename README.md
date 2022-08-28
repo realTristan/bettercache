@@ -63,12 +63,12 @@ func main() {
 ```go
 
 // The Cache struct has six primary keys
-/* CurrentSize: int { "The current map size" } */
-/* maxSize: int { "The maximum map size" } */
-/* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
-/* mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  */
-/* fullTextData: []string { "The Full Text Data Cache Values" } 					  */
-/* fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	*/
+// CurrentSize: int { "The current map size" } 
+// maxSize: int { "The maximum map size" } 
+// mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  
+// mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  
+// fullTextData: []string { "The Full Text Data Cache Values" } 					  
+// fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	
 type Cache struct {
 	currentSize     int
 	maxSize         int
@@ -79,11 +79,11 @@ type Cache struct {
 }
 
 // The SetData struct has three primary keys
-/* Key: string { "The Cache Key" }		                            */
-/* Value: string { "The Cache Value" }	                            */
-/* FullText: string { "Whether to enable full text functions " }	*/
+// Key: string { "The Cache Key" }		                            
+// Value: string { "The Cache Value" }	                            
+// FullText: string { "Whether to enable full text functions " }	
 // WARNING
-/* If FullText is set to true, it converts the Value to a string	*/
+// If FullText is set to true, it converts the Value to a string	
 type SetData struct {
 	Key      interface{}
 	Value    interface{}
@@ -91,18 +91,18 @@ type SetData struct {
 }
 
 // The TextRemove struct has two primary keys
-/* Query: string { "The string to find within values" } 				*/
-/* Amount: int { "The amount of keys to remove (Set to -1 for all)" }	*/
+// Query: string { "The string to find within values" } 				
+// Amount: int { "The amount of keys to remove (Set to -1 for all)" }	
 type TextRemove struct {
 	Query  string
 	Amount int
 }
 
 // The TextSearch struct contains five primary keys
-/* Query: string { "The string to search for in the cache values" } 		*/
-/* Limit: int { "The amount of search results. (Set to -1 for no limit)" }  */
-/* StrictMode: bool { "Set to false to ignore caps in query comparisons" }  */
-/* PreviousQueries: map[string][]string { "The Previous Searches" } 			*/
+// Query: string { "The string to search for in the cache values" } 		
+// Limit: int { "The amount of search results. (Set to -1 for no limit)" }  
+// StrictMode: bool { "Set to false to ignore caps in query comparisons" }  
+// PreviousQueries: map[string][]string { "The Previous Searches" } 			
 type TextSearch struct {
 	Query               string
 	Limit               int
@@ -124,22 +124,22 @@ type TextSearch struct {
 // and the provided query to lowercase
 
 // Performs a full text search using the cache values
-/* Parameters */
-/* 	TS: *TextSearch = &TextSearch{
+// Parameters 
+// 	TS: *TextSearch = &TextSearch{
 		Query               	string
 		Limit               	int
 		StrictMode          	bool
 		StorePreviousSearch 	bool
 		PreviousSearch      	map[string][]string
 })
-*/
+
 //
 // If you want to store the previous text search you made, you can set the
 // StorePreviousSearch to true. This will set the key in the previous search
 // to the provided TextSearch.Query and the value to the result slice.
 //
-/* >> Returns 			*/
-/* res: []string	 	*/
+// >> Returns 			
+// res: []string	 	
 func (cache *Cache) FullTextSearch(TS *TextSearch) []string {}
 
 // The Full Text Remove function is used to find all cache values
@@ -155,25 +155,25 @@ func (cache *Cache) FullTextSearch(TS *TextSearch) []string {}
 
 // Removes keys in the cache depending on whether their values
 // contain the provided query
-/* Parameters */
-/* 	TS: *TextRemove = &TextRemove{
+// Parameters 
+// 	TS: *TextRemove = &TextRemove{
 		Query               	string
 		Amount               	int
-})*/
+})
 //
 // If you want to remnove all the values, either call the FullTextRemoveAll()
 // function or set the TextRemove.Amount to -1
 //
-/* >> Returns       */
-/* res: []string    */
+// >> Returns       
+// res: []string    
 func (cache *Cache) FullTextRemove(TR *TextRemove) []string {}
 
 // The Full Text Remove All function utilizes the Full Text Remove function
 // to remove the keys whos values contain the provided query.
 
 // Removes all cache keys that contain the provided query in their values
-/* Paramters */
-/*	query: string { "The string to query for" } */
+// Paramters 
+//	query: string { "The string to query for" } 
 func (cache *Cache) FullTextRemoveAll(query string) []string {}
 
 // The Init function is used for initalizing the Cache struct
@@ -182,11 +182,11 @@ func (cache *Cache) FullTextRemoveAll(query string) []string {}
 // function is much easier
 
 // Initializes the cache object
-/* Parameters: 												*/
-/* 	size: int { "The Size of the cache map and slice" }  	*/
+// Parameters: 												
+// 	size: int { "The Size of the cache map and slice" }  	
 //
-/* Returns 													*/
-/* 	cache: *Cache 											*/
+// Returns 													
+// 	cache: *Cache 											
 func Init(size int) *Cache {}
 
 // The Set function is used for setting a new value inside
@@ -200,12 +200,12 @@ func Init(size int) *Cache {}
 // index to the cache indices map
 
 // Sets a key to the provided value
-/* Parameters: */
-/* 	SD &SetData = *SetData{
+// Parameters: 
+// 	SD &SetData = *SetData{
 		Key: interface{},
 		Value: interface{},
 		FullText: bool,
-} */
+} 
 func (cache *Cache) Set(SD *SetData) {}
 
 // The ExistsinFullText function is used for checking whether a key
@@ -214,11 +214,11 @@ func (cache *Cache) Set(SD *SetData) {}
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+// Parameters: 								
+// 	key: interface{} { "The Cache Key" } 	
 //
-/* Returns 									*/
-/* 	doesExist: bool 						*/
+// Returns 									
+// 	doesExist: bool 						
 func (cache *Cache) ExistsInFullText(key interface{}) bool {}
 
 // The ExistsInMap function is used for checking whether a key
@@ -227,11 +227,11 @@ func (cache *Cache) ExistsInFullText(key interface{}) bool {}
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters: 							*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+// Parameters: 							
+// 	key: interface{} { "The Cache Key" } 	
 //
-/* Returns 								*/
-/* 	doesExist: bool 					*/
+// Returns 								
+// 	doesExist: bool 					
 func (cache *Cache) ExistsInMap(key interface{}) bool {}
 
 // The Exists function is used for checking whether a key
@@ -240,11 +240,11 @@ func (cache *Cache) ExistsInMap(key interface{}) bool {}
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+// Parameters: 								
+// 	key: interface{} { "The Cache Key" } 	
 //
-/* Returns 									*/
-/* 	doesExist: bool 						*/
+// Returns 									
+// 	doesExist: bool 						
 func (cache *Cache) Exists(key interface{}) bool {}
 
 // The Get function is used for return a value from the cache
@@ -258,11 +258,11 @@ func (cache *Cache) Exists(key interface{}) bool {}
 // the value by ':' and return the index[2] of it's result
 
 // Returns the cache value of the provided key
-/* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+// Parameters: 								
+// 	key: interface{} { "The Cache Key" } 	
 //
-/* Returns 									*/
-/* 	cacheValue: interface{} 				*/
+// Returns 									
+// 	cacheValue: interface{} 				
 func (cache *Cache) Get(key interface{}) interface{} {}
 
 // The Remove function is used to remove a value from the cache
@@ -275,11 +275,11 @@ func (cache *Cache) Get(key interface{}) interface{} {}
 // removed value. Once the function returns, the cache mutex is unlocked.
 
 // Removes a key from the cache
-/* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+// Parameters: 								
+// 	key: interface{} { "The Cache Key" } 	
 //
-/* Returns 									*/
-/* 	removedValue: interface{} 				*/
+// Returns 									
+// 	removedValue: interface{} 				
 func (cache *Cache) Remove(key interface{}) interface{} {}
 
 // The Show function is used for getting the cache data.
@@ -288,8 +288,8 @@ func (cache *Cache) Remove(key interface{}) interface{} {}
 // Once the function has returned, the mutex unlocks
 
 // Show the cache
-/* Returns 								*/
-/* 	cache.mainData: []interface{} 		*/
+// Returns 								
+// 	cache.mainData: []interface{} 		
 func (cache *Cache) Show() (map[interface{}]interface{}, []string) {}
 
 // The ShowFTIndices function is used for getting the cache
@@ -298,8 +298,8 @@ func (cache *Cache) Show() (map[interface{}]interface{}, []string) {}
 // the mutex unlocks
 
 // Show the cache
-/* Returns 								*/
-/* 	cache.mainIndices: map[interface{}]int 		*/
+// Returns 								
+// 	cache.mainIndices: map[interface{}]int 		
 func (cache *Cache) ShowFTIndices() map[interface{}]int {}
 
 // The ShowKeys function is used to get a slice of all
@@ -312,8 +312,8 @@ func (cache *Cache) ShowFTIndices() map[interface{}]int {}
 
 // Returns all the cache keys in a slice
 //
-/* Returns 							*/
-/* 	keys: []interface{}				*/
+// Returns 							
+// 	keys: []interface{}				
 func (cache *Cache) ShowKeys() []interface{} {}
 
 // The Clear function is used to clear the cache
@@ -349,32 +349,32 @@ func (cache *Cache) GetCurrentSize() int {}
 // The Flush function is used to write the cache
 // data to a BetterCache file
 //
-/* Paramters: */
-/* 	path: string { "The path to the BetterCache file" } */
+// Paramters: 
+// 	path: string { "The path to the BetterCache file" } 
 func (cache *Cache) Flush(path string) {}
 
 // The GetPreviousQueries function is used to return the
 // slice of values for a previous query
 //
-/* Paramters */
-/* query: string { "The Previous Query" } */
+// Paramters 
+// query: string { "The Previous Query" } 
 //
-/* Returns */
-/* results: []string { "The Query Results" } */
+// Returns 
+// results: []string { "The Query Results" } 
 func (TS *TextSearch) GetPreviousQueries(query string) []string {}
 
 // The GetPreviousQueries function is used to delete a
 // previous query from the PreviousQueries map
 //
-/* Paramters */
-/* query: string { "The Previous Query" } */
+// Paramters 
+// query: string { "The Previous Query" } 
 func (TS *TextSearch) DeletePreviousQuery(query string) {}
 
 // The ClearPreviousQueries function is used to reset
 // the previous queries map
 //
-/* Paramters */
-/* size: int { "The Size of PreviousQueries Map (Set to -1 for no limit)" } */
+// Paramters 
+// size: int { "The Size of PreviousQueries Map (Set to -1 for no limit)" } 
 func (TS *TextSearch) ClearPreviousQueries(size int) {}
 
 ```
