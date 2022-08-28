@@ -63,12 +63,12 @@ func main() {
 ```go
 
 // The Cache struct has six primary keys
-/* CurrentSize: int { "The current map size" }                                        */
-/* maxSize: int { "The maximum map size" }                                            */
+/* CurrentSize: int { "The current map size" } */
+/* maxSize: int { "The maximum map size" } */
 /* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
-/* mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								                                             */
+/* mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  */
 /* fullTextData: []string { "The Full Text Data Cache Values" } 					  */
-/* fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	                                                                    */
+/* fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	*/
 type Cache struct {
 	currentSize     int
 	maxSize         int
@@ -182,7 +182,7 @@ func (cache *Cache) FullTextRemoveAll(query string) []string {}
 // function is much easier
 
 // Initializes the cache object
-/* Parameters 												*/
+/* Parameters: 												*/
 /* 	size: int { "The Size of the cache map and slice" }  	*/
 //
 /* Returns 													*/
@@ -200,10 +200,12 @@ func Init(size int) *Cache {}
 // index to the cache indices map
 
 // Sets a key to the provided value
-/* Parameters 										 			    		*/
-/* 	key: string { "The Cache Key" }  					 			    	*/
-/* 	value: interface{} { "The value to set the key to" }  			    	*/
-/* 	fullText: bool { "Whether to add the value to the full text slice" } 	*/
+/* Parameters: */
+/* 	SD &SetData = *SetData{
+		Key: interface{},
+		Value: interface{},
+		FullText: bool,
+} */
 func (cache *Cache) Set(SD *SetData) {}
 
 // The ExistsinFullText function is used for checking whether a key
@@ -212,11 +214,11 @@ func (cache *Cache) Set(SD *SetData) {}
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters 							*/
-/* 	key: string { "The Cache Key" } 	*/
+/* Parameters: 								*/
+/* 	key: interface{} { "The Cache Key" } 	*/
 //
-/* Returns 								*/
-/* 	doesExist: bool 					*/
+/* Returns 									*/
+/* 	doesExist: bool 						*/
 func (cache *Cache) ExistsInFullText(key interface{}) bool {}
 
 // The ExistsInMap function is used for checking whether a key
@@ -225,11 +227,11 @@ func (cache *Cache) ExistsInFullText(key interface{}) bool {}
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters 							    */
+/* Parameters: 							*/
 /* 	key: interface{} { "The Cache Key" } 	*/
 //
-/* Returns 								    */
-/* 	doesExist: bool 					    */
+/* Returns 								*/
+/* 	doesExist: bool 					*/
 func (cache *Cache) ExistsInMap(key interface{}) bool {}
 
 // The Exists function is used for checking whether a key
@@ -238,12 +240,12 @@ func (cache *Cache) ExistsInMap(key interface{}) bool {}
 // cache. Once the function returns, the mutex is unlocked
 
 // Returns whether the provided key exists in the cache
-/* Parameters 							*/
-/* 	key: string { "The Cache Key" } 	*/
+/* Parameters: 								*/
+/* 	key: interface{} { "The Cache Key" } 	*/
 //
-/* Returns 								*/
-/* 	doesExist: bool 					*/
-func (cache *Cache) Exists(key string) bool {}
+/* Returns 									*/
+/* 	doesExist: bool 						*/
+func (cache *Cache) Exists(key interface{}) bool {}
 
 // The Get function is used for return a value from the cache
 // with a key. The function read locks the cache mutex before
@@ -256,12 +258,12 @@ func (cache *Cache) Exists(key string) bool {}
 // the value by ':' and return the index[2] of it's result
 
 // Returns the cache value of the provided key
-/* Parameters 						*/
-/* 	key: string { "The Cache Key" } */
+/* Parameters: 								*/
+/* 	key: interface{} { "The Cache Key" } 	*/
 //
-/* Returns 							*/
-/* 	cacheValue: interface{} 		*/
-func (cache *Cache) Get(key string) interface{} {}
+/* Returns 									*/
+/* 	cacheValue: interface{} 				*/
+func (cache *Cache) Get(key interface{}) interface{} {}
 
 // The Remove function is used to remove a value from the cache
 // using it's corresponding key. The function full locks the mutex
@@ -273,11 +275,11 @@ func (cache *Cache) Get(key string) interface{} {}
 // removed value. Once the function returns, the cache mutex is unlocked.
 
 // Removes a key from the cache
-/* Parameters 						*/
-/* 	key: string { "The Cache Key" } */
+/* Parameters: 								*/
+/* 	key: interface{} { "The Cache Key" } 	*/
 //
-/* Returns 							*/
-/* 	removedValue: interface{} 		*/
+/* Returns 									*/
+/* 	removedValue: interface{} 				*/
 func (cache *Cache) Remove(key interface{}) interface{} {}
 
 // The Show function is used for getting the cache data.
@@ -286,7 +288,7 @@ func (cache *Cache) Remove(key interface{}) interface{} {}
 // Once the function has returned, the mutex unlocks
 
 // Show the cache
-/* Returns 							    */
+/* Returns 								*/
 /* 	cache.mainData: []interface{} 		*/
 func (cache *Cache) Show() (map[interface{}]interface{}, []string) {}
 
@@ -296,8 +298,8 @@ func (cache *Cache) Show() (map[interface{}]interface{}, []string) {}
 // the mutex unlocks
 
 // Show the cache
-/* Returns 								    */
-/* 	cache.mainIndices: map[string]int 		*/
+/* Returns 								*/
+/* 	cache.mainIndices: map[interface{}]int 		*/
 func (cache *Cache) ShowFTIndices() map[interface{}]int {}
 
 // The ShowKeys function is used to get a slice of all
@@ -311,7 +313,7 @@ func (cache *Cache) ShowFTIndices() map[interface{}]int {}
 // Returns all the cache keys in a slice
 //
 /* Returns 							*/
-/* 	keys: []string 					*/
+/* 	keys: []interface{}				*/
 func (cache *Cache) ShowKeys() []interface{} {}
 
 // The Clear function is used to clear the cache
@@ -338,6 +340,18 @@ func (cache *Cache) GetMaxSize() int {}
 
 // Return the cache current size (int)
 func (cache *Cache) GetCurrentSize() int {}
+
+
+// The Flush function locks the mutex before calling
+// the flushToFile function. Once the function has been
+// called and the Flush function returns, the mutex is unlocked
+
+// The Flush function is used to write the cache
+// data to a BetterCache file
+//
+/* Paramters: */
+/* 	path: string { "The path to the BetterCache file" } */
+func (cache *Cache) Flush(path string) {}
 
 // The GetPreviousQueries function is used to return the
 // slice of values for a previous query
