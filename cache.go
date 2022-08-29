@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// The _Cache struct has six primary keys
+// The _Cache struct has six primary keys (all unexported)
 /* currentSize: int { "The current map size" } */
 /* maxSize: int { "The maximum map size" } */
 /* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
