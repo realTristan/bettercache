@@ -5,6 +5,10 @@ import (
 	"os"
 )
 
+// The GetWrapper function is used to determine
+// whether the provided object is a string or an
+// int. It then wraps the provided object in the
+// object type.
 func getWrapper(o interface{}) string {
 	switch o.(type) {
 	case int:
@@ -23,7 +27,7 @@ func getWrapper(o interface{}) string {
 //
 /* Paramters: */
 /* path: string { "The path to the BetterCache file" } */
-func (cache *Cache) flushToFile(path string) {
+func (cache *_Cache) flushToFile(path string) {
 	// If the BetterCache file doesn't exist
 	if _, err := os.Stat(path); err != nil {
 		// Return the function
@@ -72,7 +76,7 @@ func (cache *Cache) flushToFile(path string) {
 //
 /* Paramters: */
 /* 	path: string { "The path to the BetterCache file" } */
-func (cache *Cache) Flush(path string) {
+func (cache *_Cache) Flush(path string) {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()

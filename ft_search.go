@@ -56,7 +56,7 @@ type TextSearch struct {
 //
 /* >> Returns 			*/
 /* res: []string	 	*/
-func (cache *Cache) FullTextSearch(TS *TextSearch) []string {
+func (cache *_Cache) FullTextSearch(TS *TextSearch) []string {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()

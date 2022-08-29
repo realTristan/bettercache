@@ -32,7 +32,7 @@ type SetData struct {
 		Value: interface{},
 		FullText: bool,
 } */
-func (cache *Cache) Set(SD *SetData) {
+func (cache *_Cache) Set(SD *SetData) {
 	// Mutex locking
 	cache.mutex.Lock()
 	defer cache.mutex.Unlock()

@@ -35,7 +35,7 @@ type TextRemove struct {
 //
 /* >> Returns */
 /* res: []string */
-func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
+func (cache *_Cache) FullTextRemove(TR *TextRemove) []string {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
@@ -88,7 +88,7 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {
 // Removes all cache keys that contain the provided query in their values
 /* Paramters */
 /*	query: string { "The string to query for" } */
-func (cache *Cache) FullTextRemoveAll(query string) []string {
+func (cache *_Cache) FullTextRemoveAll(query string) []string {
 	return cache.FullTextRemove(&TextRemove{
 		Query:  query,
 		Amount: -1,

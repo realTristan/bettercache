@@ -11,7 +11,7 @@ import (
 //
 // Using the provided value size, it will modify
 // how large the value is.
-func (cache *Cache) TestSet(amountOfKeys int, setValue string) {
+func (cache *_Cache) TestSet(amountOfKeys int, setValue string) {
 	var startTime time.Time = time.Now()
 	for i := 0; i < amountOfKeys; i++ {
 		cache.Set(&SetData{
@@ -31,7 +31,7 @@ func (cache *Cache) TestSet(amountOfKeys int, setValue string) {
 // After the keys are added, it then iterates over the cache
 // and loops by the provided amount of removes
 // and removes each key from the cache
-func (cache *Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
+func (cache *_Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
 	for i := 0; i < amountOfSets; i++ {
 		cache.Set(&SetData{
 			Key:      fmt.Sprintf("key%d", i),
@@ -54,7 +54,7 @@ func (cache *Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
 //
 // After the keys and values are set, it then loops over the cache
 // by the amount of gets
-func (cache *Cache) TestGet(amountOfSets int, setValue string, amountOfGets int) {
+func (cache *_Cache) TestGet(amountOfSets int, setValue string, amountOfGets int) {
 	for i := 0; i < amountOfSets; i++ {
 		cache.Set(&SetData{
 			Key:      fmt.Sprintf("key%d", i),
@@ -79,7 +79,7 @@ func (cache *Cache) TestGet(amountOfSets int, setValue string, amountOfGets int)
 // After the keys and values are set, it then performs the full text search
 // and whether the printResult parameter is set to true or not, it will
 // print the result string.
-func (cache *Cache) TestFullTextSearch(
+func (cache *_Cache) TestFullTextSearch(
 	amountOfSets int, setValue string, searchFor string, printResult bool) {
 
 	// Set cache data

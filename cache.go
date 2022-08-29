@@ -6,14 +6,14 @@ import (
 	"sync"
 )
 
-// The Cache struct has six primary keys
-/* CurrentSize: int { "The current map size" } */
+// The _Cache struct has six primary keys
+/* currentSize: int { "The current map size" } */
 /* maxSize: int { "The maximum map size" } */
 /* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
 /* mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  */
 /* fullTextData: []string { "The Full Text Data Cache Values" } 					  */
 /* fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	*/
-type Cache struct {
+type _Cache struct {
 	currentSize     int
 	maxSize         int
 	mutex           *sync.RWMutex
@@ -32,9 +32,9 @@ type Cache struct {
 /* 	size: int { "The Size of the cache map and slice" }  	*/
 //
 /* Returns 													*/
-/* 	cache: *Cache 											*/
-func Init(size int) *Cache {
-	var cache *Cache = &Cache{
+/* 	cache: *_Cache 											*/
+func Init(size int) *_Cache {
+	var cache *_Cache = &_Cache{
 		mutex:       &sync.RWMutex{},
 		maxSize:     size,
 		currentSize: 0,
@@ -70,7 +70,7 @@ func Init(size int) *Cache {
 //
 /* Returns 									*/
 /* 	doesExist: bool 						*/
-func (cache *Cache) ExistsInFullText(key interface{}) bool {
+func (cache *_Cache) ExistsInFullText(key interface{}) bool {
 	// Check if the key exists within the cache.fullTextIndices
 	if _, t := cache.fullTextIndices[key]; t {
 		return true
@@ -89,7 +89,7 @@ func (cache *Cache) ExistsInFullText(key interface{}) bool {
 //
 /* Returns 								*/
 /* 	doesExist: bool 					*/
-func (cache *Cache) ExistsInMap(key interface{}) bool {
+func (cache *_Cache) ExistsInMap(key interface{}) bool {
 	// Check if the key exists within the cache.fullTextIndices
 	if _, t := cache.mapData[key]; t {
 		return true
@@ -108,7 +108,7 @@ func (cache *Cache) ExistsInMap(key interface{}) bool {
 //
 /* Returns 									*/
 /* 	doesExist: bool 						*/
-func (cache *Cache) Exists(key interface{}) bool {
+func (cache *_Cache) Exists(key interface{}) bool {
 	// Checks the full text cache and the data map
 	return cache.ExistsInFullText(key) || cache.ExistsInMap(key)
 }
@@ -129,7 +129,7 @@ func (cache *Cache) Exists(key interface{}) bool {
 //
 /* Returns 									*/
 /* 	cacheValue: interface{} 				*/
-func (cache *Cache) Get(key interface{}) interface{} {
+func (cache *_Cache) Get(key interface{}) interface{} {
 	// Check if the key exists in the full text data
 	if cache.ExistsInFullText(key) {
 		// Mutex locking/unlocking
@@ -168,7 +168,7 @@ func (cache *Cache) Get(key interface{}) interface{} {
 //
 /* Returns 									*/
 /* 	removedValue: interface{} 				*/
-func (cache *Cache) Remove(key interface{}) interface{} {
+func (cache *_Cache) Remove(key interface{}) interface{} {
 	// Mutex locking
 	cache.mutex.Lock()
 	defer cache.mutex.Unlock()
@@ -225,7 +225,7 @@ func (cache *Cache) Remove(key interface{}) interface{} {
 // Show the cache
 /* Returns 								*/
 /* 	cache.mainData: []interface{} 		*/
-func (cache *Cache) Show() (map[interface{}]interface{}, []string) {
+func (cache *_Cache) Show() (map[interface{}]interface{}, []string) {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
@@ -242,7 +242,7 @@ func (cache *Cache) Show() (map[interface{}]interface{}, []string) {
 // Show the cache
 /* Returns 								*/
 /* 	cache.mainIndices: map[interface{}]int 		*/
-func (cache *Cache) ShowFTIndices() map[interface{}]int {
+func (cache *_Cache) ShowFTIndices() map[interface{}]int {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
@@ -263,7 +263,7 @@ func (cache *Cache) ShowFTIndices() map[interface{}]int {
 //
 /* Returns 							*/
 /* 	keys: []interface{}				*/
-func (cache *Cache) ShowKeys() []interface{} {
+func (cache *_Cache) ShowKeys() []interface{} {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
@@ -291,7 +291,7 @@ func (cache *Cache) ShowKeys() []interface{} {
 // the cache mutex is unlocked
 
 // Clear the cache data
-func (cache *Cache) Clear() *Cache {
+func (cache *_Cache) Clear() *_Cache {
 	// Mutex locking
 	cache.mutex.Lock()
 	defer cache.mutex.Unlock()
@@ -306,7 +306,7 @@ func (cache *Cache) Clear() *Cache {
 // returns, the cache mutex is unlocked.
 
 // Returns the caches maximum size (int)
-func (cache *Cache) GetMaxSize() int {
+func (cache *_Cache) GetMaxSize() int {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
@@ -321,7 +321,7 @@ func (cache *Cache) GetMaxSize() int {
 // returns, the cache mutex is unlocked.
 
 // Return the cache current size (int)
-func (cache *Cache) GetCurrentSize() int {
+func (cache *_Cache) GetCurrentSize() int {
 	// Mutex locking
 	cache.mutex.RLock()
 	defer cache.mutex.RUnlock()
