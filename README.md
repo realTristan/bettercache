@@ -1,4 +1,4 @@
-# Better Cache ![Stars](https://img.shields.io/github/stars/realTristan/BetterCache?color=brightgreen) ![Watchers](https://img.shields.io/github/watchers/realTristan/BetterCache?label=Watchers)
+# Better Cache ![Stars](https://img.shields.io/github/stars/realTristan/bettercache?color=brightgreen) ![Watchers](https://img.shields.io/github/watchers/realTristan/bettercache?label=Watchers)
 ![banner (5)](https://user-images.githubusercontent.com/75189508/186757681-6b7f97e8-ec37-448a-83cc-75106ed16309.png)
 
 Modern Caching System for Go.
@@ -26,7 +26,7 @@ package main
 // Import Packages
 import (
     "fmt"
-    cache "github.com/realTristan/BetterCache"
+    cache "github.com/realTristan/bettercache"
 )
 
 func main() {
