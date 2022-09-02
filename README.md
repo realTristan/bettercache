@@ -3,7 +3,7 @@
 
 Modern Caching System for Go.
 
-# About
+# Why BetterCache?
 - Better Cache is a Modern, Native golang caching system that utilizes slices for storing data. Because of this, we can perform lightning fast full text searches, full text removes, etc.
 
 # Installation
