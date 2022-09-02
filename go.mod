@@ -1,3 +1,3 @@
-module github.com/realTristan/BetterCache
+module github.com/realTristan/bettercache
 
-go 1.19
+go 1.17

@@ -1,4 +1,4 @@
-package cache
+package bettercache
 
 // Import the strings package
 import "strings"

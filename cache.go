@@ -1,4 +1,4 @@
-package cache
+package bettercache
 
 // Import Packages
 import (

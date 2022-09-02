@@ -1,4 +1,4 @@
-package cache
+package bettercache
 
 // Import fmt Package
 import "fmt"

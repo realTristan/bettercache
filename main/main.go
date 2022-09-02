@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	cache "github.com/realTristan/BetterCache"
+	cache "github.com/realTristan/bettercache"
 )
 
 /*
