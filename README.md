@@ -29,26 +29,26 @@ package main
 // Import Packages
 import (
     "fmt"
-    cache "github.com/realTristan/bettercache"
+    bc "github.com/realTristan/bettercache"
 )
 
 func main() {
     // Initialize the cache
-    var Cache *cache.Cache = cache.Init(-1) // -1 (no size limit)
+    var cache *bc.Cache = bc.Init(-1) // -1 (no size limit)
 
     // Add key1 to the cache
-    Cache.Set(&cache.SetData{
+    cache.Set(&bc.SetData{
         Key:      "key1",       // The cache key
         Value:    "value1",     // The cache value
         FullText: true,         // If true, Value converts to a string
     })
 
     // Get key from the cache
-    var data string = Cache.Get("key1")
+    var data string = cache.Get("key1")
     fmt.Println(data)
 
     // Full Text Search for the key's contents
-    var res []string = Cache.FullTextSearch(&cache.TextSearch{
+    var res []string = cache.FullTextSearch(&bc.TextSearch{
         Limit:      -1,                 // No limit
         Query:      []byte("value"),    // Search for "value"
         StrictMode: false,              // Ignore CAPS
@@ -56,7 +56,7 @@ func main() {
     fmt.Println(res)
 
     // Remove key1 from the cache
-    var removedKey string = Cache.Remove("key1")
+    var removedKey string = cache.Remove("key1")
     fmt.Println(removedKey)
 }
 ```
@@ -65,14 +65,14 @@ func main() {
 
 ```go
 
-// The _Cache struct has six primary keys
+// The Cache struct has six primary keys
 // CurrentSize: int { "The current map size" } 
 // maxSize: int { "The maximum map size" } 
 // mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  
 // mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  
 // fullTextData: []string { "The Full Text Data Cache Values" } 					  
 // fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	
-type _Cache struct {
+type Cache struct {
 	currentSize     int
 	maxSize         int
 	mutex           *sync.RWMutex
