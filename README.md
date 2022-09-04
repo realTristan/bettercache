@@ -34,21 +34,21 @@ import (
 
 func main() {
     // Initialize the cache
-    var cache *bc.Cache = bc.Init(-1) // -1 (no size limit)
+    var c *bc.Cache = bc.Init(-1) // -1 (no size limit)
 
     // Add key1 to the cache
-    cache.Set(&bc.SetData{
+    c.Set(&bc.SetData{
         Key:      "key1",       // The cache key
         Value:    "value1",     // The cache value
         FullText: true,         // If true, Value converts to a string
     })
 
     // Get key from the cache
-    var data string = cache.Get("key1")
+    var data string = c.Get("key1")
     fmt.Println(data)
 
     // Full Text Search for the key's contents
-    var res []string = cache.FullTextSearch(&bc.TextSearch{
+    var res []string = c.FullTextSearch(&bc.TextSearch{
         Limit:      -1,                 // No limit
         Query:      []byte("value"),    // Search for "value"
         StrictMode: false,              // Ignore CAPS
@@ -56,7 +56,7 @@ func main() {
     fmt.Println(res)
 
     // Remove key1 from the cache
-    var removedKey string = cache.Remove("key1")
+    var removedKey string = c.Remove("key1")
     fmt.Println(removedKey)
 }
 ```
@@ -67,14 +67,12 @@ func main() {
 
 // The Cache struct has six primary keys
 // CurrentSize: int { "The current map size" } 
-// maxSize: int { "The maximum map size" } 
 // mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  
 // mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  
 // fullTextData: []string { "The Full Text Data Cache Values" } 					  
 // fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	
 type Cache struct {
 	currentSize     int
-	maxSize         int
 	mutex           *sync.RWMutex
 	fullTextData    []string
 	fullTextIndices map[interface{}]int
@@ -143,7 +141,7 @@ type TextSearch struct {
 //
 // >> Returns 			
 // res: []string	 	
-func (cache *Cache) FullTextSearch(TS *TextSearch) []string {}
+func (c *Cache) FullTextSearch(TS *TextSearch) []string {}
 
 // The Full Text Remove function is used to find all cache values
 // that contain the provided query and remove their keys from the cache
@@ -169,7 +167,7 @@ func (cache *Cache) FullTextSearch(TS *TextSearch) []string {}
 //
 // >> Returns       
 // res: []string    
-func (cache *Cache) FullTextRemove(TR *TextRemove) []string {}
+func (c *Cache) FullTextRemove(TR *TextRemove) []string {}
 
 // The Full Text Remove All function utilizes the Full Text Remove function
 // to remove the keys whos values contain the provided query.
@@ -177,7 +175,7 @@ func (cache *Cache) FullTextRemove(TR *TextRemove) []string {}
 // Removes all cache keys that contain the provided query in their values
 // Paramters 
 //	query: string { "The string to query for" } 
-func (cache *Cache) FullTextRemoveAll(query string) []string {}
+func (c *Cache) FullTextRemoveAll(query string) []string {}
 
 // The Init function is used for initalizing the Cache struct
 // and returning the newly created cache object.
@@ -209,33 +207,7 @@ func Init(size int) *Cache {}
 //		Value: interface{},
 //		FullText: bool,
 //} 
-func (cache *Cache) Set(SD *SetData) {}
-
-// The ExistsinFullText function is used for checking whether a key
-// exists in the full text cache or not. The function read locks
-// the cache mutex before returning whether the key is in the
-// cache. Once the function returns, the mutex is unlocked
-
-// Returns whether the provided key exists in the cache
-// Parameters: 								
-// 	key: interface{} { "The Cache Key" } 	
-//
-// Returns 									
-// 	doesExist: bool 						
-func (cache *Cache) ExistsInFullText(key interface{}) bool {}
-
-// The ExistsInMap function is used for checking whether a key
-// exists in the main cache or not. The function read locks the
-// cache mutex before returning whether the key is in the
-// cache. Once the function returns, the mutex is unlocked
-
-// Returns whether the provided key exists in the cache
-// Parameters: 							
-// 	key: interface{} { "The Cache Key" } 	
-//
-// Returns 								
-// 	doesExist: bool 					
-func (cache *Cache) ExistsInMap(key interface{}) bool {}
+func (c *Cache) Set(SD *SetData) {}
 
 // The Exists function is used for checking whether a key
 // exists in the cache or not. The function read locks the
@@ -248,7 +220,7 @@ func (cache *Cache) ExistsInMap(key interface{}) bool {}
 //
 // Returns 									
 // 	doesExist: bool 						
-func (cache *Cache) Exists(key interface{}) bool {}
+func (c *Cache) Exists(key interface{}) bool {}
 
 // The Get function is used for return a value from the cache
 // with a key. The function read locks the cache mutex before
@@ -266,7 +238,7 @@ func (cache *Cache) Exists(key interface{}) bool {}
 //
 // Returns 									
 // 	cacheValue: interface{} 				
-func (cache *Cache) Get(key interface{}) interface{} {}
+func (c *Cache) Get(key interface{}) interface{} {}
 
 // The Remove function is used to remove a value from the cache
 // using it's corresponding key. The function full locks the mutex
@@ -283,27 +255,29 @@ func (cache *Cache) Get(key interface{}) interface{} {}
 //
 // Returns 									
 // 	removedValue: interface{} 				
-func (cache *Cache) Remove(key interface{}) interface{} {}
+func (c *Cache) Remove(key interface{}) interface{} {}
 
-// The Show function is used for getting the cache data.
-// The function read locks the mutex then returns the
-// cache.mapData and the cache.fullTextData,
-// Once the function has returned, the mutex unlocks
+// The WalkNonFT function is used for iterating over
+// the non-full text search cache data.
+/*
+ Example:
+	cache.Walk(func(k, v string) bool {
+		fmt.Printf("%s: %s\n", k, v)
+		return true
+	}
+*/
+func (c *Cache) WalkNonFT(fn func(key, val interface{}) bool) {}
 
-// Show the cache
-// Returns 								
-// 	cache.mainData: []interface{} 		
-func (cache *Cache) Show() (map[interface{}]interface{}, []string) {}
-
-// The ShowFTIndices function is used for getting the cache
-// slice indices. The function read locks the mutex
-// then returns the cache.fullTextIndices. Once the function has returned,
-// the mutex unlocks
-
-// Show the cache
-// Returns 								
-// 	cache.mainIndices: map[interface{}]int 		
-func (cache *Cache) ShowFTIndices() map[interface{}]int {}
+// The WalkFT function is used for iterating over
+// the full text search cache data.
+/*
+ Example:
+	cache.Walk(func(k, v string) bool {
+		fmt.Printf("%s: %s\n", k, v)
+		return true
+	}
+*/
+func (c *Cache) WalkFT(fn func(key, val interface{}) bool) {}
 
 // The ShowKeys function is used to get a slice of all
 // the cache keys. The function read locks the cache mutex
@@ -317,7 +291,7 @@ func (cache *Cache) ShowFTIndices() map[interface{}]int {}
 //
 // Returns 							
 // 	keys: []interface{}				
-func (cache *Cache) ShowKeys() []interface{} {}
+func (c *Cache) ShowKeys() []interface{} {}
 
 // The Clear function is used to clear the cache
 // data and the cache indices. The function locks
@@ -326,15 +300,7 @@ func (cache *Cache) ShowKeys() []interface{} {}
 // the cache mutex is unlocked
 
 // Clear the cache data
-func (cache *Cache) Clear() *Cache {}
-
-// The GetMaxSize function is used to get the maximum size
-// of the cache. The function read locks the cache mutex
-// before returning the cache maxSize. Once the function
-// returns, the cache mutex is unlocked.
-
-// Returns the caches maximum size (int)
-func (cache *Cache) GetMaxSize() int {}
+func (c *Cache) Clear() *Cache {}
 
 // The GetCurrentSize function is used to get the current size
 // of the cache. The function read locks the cache mutex
@@ -342,8 +308,7 @@ func (cache *Cache) GetMaxSize() int {}
 // returns, the cache mutex is unlocked.
 
 // Return the cache current size (int)
-func (cache *Cache) GetCurrentSize() int {}
-
+func (c *Cache) GetCurrentSize() int {}
 
 // The Flush function locks the mutex before calling
 // the flushToFile function. Once the function has been
@@ -354,7 +319,7 @@ func (cache *Cache) GetCurrentSize() int {}
 //
 // Paramters: 
 // 	path: string { "The path to the BetterCache file" } 
-func (cache *Cache) Flush(path string) {}
+func (c *Cache) Flush(path string) {}
 
 // The GetPreviousQueries function is used to return the
 // slice of values for a previous query
