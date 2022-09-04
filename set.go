@@ -39,20 +39,8 @@ func (c *Cache) Set(SD *SetData) {
 
 	// If key exists
 	if c.existsInMap(SD.Key) || c.existsInFullText(SD.Key) {
-		// I decided to put this inside a function so that
-		// even if there's any errors in the Remove function,
-		// the mutex will still relock once the function returns
-		func() {
-			// Unlock the mutex so the remove function can
-			// remove the key from the cache
-			c.mutex.Unlock()
-			// Then re-lock the mutex once the key has
-			// been removed
-			defer c.mutex.Lock()
-
-			// Remove the key from the cache
-			c.remove(SD.Key)
-		}()
+		// Remove the key from the cache
+		c.remove(SD.Key)
 	}
 
 	// If the user set the AddToFullText to true
