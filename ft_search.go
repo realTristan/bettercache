@@ -3,17 +3,6 @@ package bettercache
 // Import strings package
 import "strings"
 
-/*
-
-Notes:
-Search how to store a type in a variable
-
-then in the text search struct store it as SearchType
-and when converting the interface{}, instead of .(string)
-use .(SearchType)
-
-*/
-
 // The TextSearch struct contains five primary keys
 /* Query: string { "The string to search for in the cache values" } 		*/
 /* Limit: int { "The amount of search results. (Set to -1 for no limit)" }  */
@@ -56,19 +45,19 @@ type TextSearch struct {
 //
 /* >> Returns 			*/
 /* res: []string	 	*/
-func (cache *_Cache) FullTextSearch(TS *TextSearch) []string {
+func (c *Cache) FullTextSearch(TS *TextSearch) []string {
 	// Mutex locking
-	cache.mutex.RLock()
-	defer cache.mutex.RUnlock()
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
 
 	// res -> The result slice containing the values
 	// that contain the TextSearch.Query
 	var res []string
 
 	// Iterate over the cache data
-	for i := 0; i < len(cache.fullTextData); i++ {
+	for i := 0; i < len(c.fullTextData); i++ {
 
-		// If the current cache.fullTextData index contains the
+		// If the current c.fullTextData index contains the
 		// provided query
 		if func() bool {
 			// If the user is not using strict mode
@@ -76,17 +65,17 @@ func (cache *_Cache) FullTextSearch(TS *TextSearch) []string {
 				// Convert the cache data and the query to lowercase
 				// then return whether the cache data contains the query
 				return strings.Contains(
-					strings.ToLower(cache.fullTextData[i]),
+					strings.ToLower(c.fullTextData[i]),
 					strings.ToLower(TS.Query))
 			}
 
 			// If the user is using strict mode, then just return
 			// whether the cache data contains the query with no adjustments
-			return strings.Contains(cache.fullTextData[i], TS.Query)
+			return strings.Contains(c.fullTextData[i], TS.Query)
 		}() {
 			// Append value that contains the query to
 			// the result slice
-			res = append(res, strings.Split(cache.fullTextData[i], ":")[1])
+			res = append(res, strings.Split(c.fullTextData[i], ":")[1])
 		}
 	}
 	// Add the result to the previous search
@@ -99,7 +88,7 @@ func (cache *_Cache) FullTextSearch(TS *TextSearch) []string {
 	return res
 }
 
-// The GetPreviousQueries function is used to return the
+// The GetPreviousQuery function is used to return the
 // slice of values for a previous query
 //
 /* Paramters */
@@ -107,11 +96,11 @@ func (cache *_Cache) FullTextSearch(TS *TextSearch) []string {
 //
 /* Returns */
 /* results: []string { "The Query Results" } */
-func (TS *TextSearch) GetPreviousQueries(query string) []string {
+func (TS *TextSearch) GetPreviousQuery(query string) []string {
 	return TS.PreviousQueries[query]
 }
 
-// The GetPreviousQueries function is used to delete a
+// The GetPreviousQuery function is used to delete a
 // previous query from the PreviousQueries map
 //
 /* Paramters */
@@ -126,9 +115,5 @@ func (TS *TextSearch) DeletePreviousQuery(query string) {
 /* Paramters */
 /* size: int { "The Size of PreviousQueries Map (Set to -1 for no limit)" } */
 func (TS *TextSearch) ClearPreviousQueries(size int) {
-	if size > 0 {
-		TS.PreviousQueries = make(map[string][]string)
-	} else {
-		TS.PreviousQueries = make(map[string][]string, size)
-	}
+	TS.PreviousQueries = map[string][]string{}
 }

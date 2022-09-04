@@ -27,7 +27,7 @@ func getWrapper(o interface{}) string {
 //
 /* Paramters: */
 /* path: string { "The path to the BetterCache file" } */
-func (cache *_Cache) flushToFile(path string) {
+func (c *Cache) flushToFile(path string) {
 	// If the BetterCache file doesn't exist
 	if _, err := os.Stat(path); err != nil {
 		// Return the function
@@ -39,23 +39,23 @@ func (cache *_Cache) flushToFile(path string) {
 
 	// Make sure the full text indices is greater than
 	// zero. Having a check prevents potential bugs.
-	if len(cache.fullTextIndices) > 0 {
+	if len(c.fullTextIndices) > 0 {
 		// Iterate over the full text indices
-		for _, i := range cache.fullTextIndices {
+		for _, i := range c.fullTextIndices {
 
 			// Append the full text key and value to the
 			// result byte array
 			result = append(result,
-				[]byte(fmt.Sprintf("$FULLTEXT:%s\n", cache.fullTextData[i]))...)
+				[]byte(fmt.Sprintf("$FULLTEXT:%s\n", c.fullTextData[i]))...)
 		}
 	}
 
 	// Make sure the cache map data is greater than
 	// zero. Having a check prevents potential bugs.
-	if len(cache.mapData) > 0 {
+	if len(c.mapData) > 0 {
 
 		// Iterate over the cache map data
-		for k, v := range cache.mapData {
+		for k, v := range c.mapData {
 			// Append the cache map key and value to the
 			// result byte array
 			result = append(result,
@@ -76,11 +76,11 @@ func (cache *_Cache) flushToFile(path string) {
 //
 /* Paramters: */
 /* 	path: string { "The path to the BetterCache file" } */
-func (cache *_Cache) Flush(path string) {
+func (c *Cache) Flush(path string) {
 	// Mutex locking
-	cache.mutex.RLock()
-	defer cache.mutex.RUnlock()
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
 
 	// Flush cache to BetterCache file
-	cache.flushToFile(path)
+	c.flushToFile(path)
 }

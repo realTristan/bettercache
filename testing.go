@@ -11,10 +11,10 @@ import (
 //
 // Using the provided value size, it will modify
 // how large the value is.
-func (cache *_Cache) TestSet(amountOfKeys int, setValue string) {
+func (c *Cache) TestSet(amountOfKeys int, setValue string) {
 	var startTime time.Time = time.Now()
 	for i := 0; i < amountOfKeys; i++ {
-		cache.Set(&SetData{
+		c.Set(&SetData{
 			Key:      fmt.Sprintf("key%d", i),
 			Value:    setValue,
 			FullText: true,
@@ -25,15 +25,15 @@ func (cache *_Cache) TestSet(amountOfKeys int, setValue string) {
 }
 
 // The TestRemove() function tests the performance of the
-// cache.Remove() function. It loops by the provided amount
+// c.Remove() function. It loops by the provided amount
 // of sets to add keys to the cache
 //
 // After the keys are added, it then iterates over the cache
 // and loops by the provided amount of removes
 // and removes each key from the cache
-func (cache *_Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
+func (c *Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
 	for i := 0; i < amountOfSets; i++ {
-		cache.Set(&SetData{
+		c.Set(&SetData{
 			Key:      fmt.Sprintf("key%d", i),
 			Value:    "value",
 			FullText: true,
@@ -42,7 +42,7 @@ func (cache *_Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
 	// Track the speed of the remove function
 	var startTime time.Time = time.Now()
 	for i := 0; i < amountOfRemoves; i++ {
-		cache.Remove(fmt.Sprintf("key%d", i))
+		c.Remove(fmt.Sprintf("key%d", i))
 	}
 	fmt.Printf("\nTest: Remove(%d, %d) -> (%v)\n",
 		amountOfSets, amountOfRemoves, time.Since(startTime))
@@ -54,9 +54,9 @@ func (cache *_Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
 //
 // After the keys and values are set, it then loops over the cache
 // by the amount of gets
-func (cache *_Cache) TestGet(amountOfSets int, setValue string, amountOfGets int) {
+func (c *Cache) TestGet(amountOfSets int, setValue string, amountOfGets int) {
 	for i := 0; i < amountOfSets; i++ {
-		cache.Set(&SetData{
+		c.Set(&SetData{
 			Key:      fmt.Sprintf("key%d", i),
 			Value:    setValue,
 			FullText: true,
@@ -64,7 +64,7 @@ func (cache *_Cache) TestGet(amountOfSets int, setValue string, amountOfGets int
 	}
 	var startTime time.Time = time.Now()
 	for i := 0; i < amountOfGets; i++ {
-		var v interface{} = cache.Get(fmt.Sprintf("key%d", i))
+		var v interface{} = c.Get(fmt.Sprintf("key%d", i))
 		fmt.Printf("%v, ", v)
 	}
 	// Print result
@@ -79,12 +79,12 @@ func (cache *_Cache) TestGet(amountOfSets int, setValue string, amountOfGets int
 // After the keys and values are set, it then performs the full text search
 // and whether the printResult parameter is set to true or not, it will
 // print the result string.
-func (cache *_Cache) TestFullTextSearch(
+func (c *Cache) TestFullTextSearch(
 	amountOfSets int, setValue string, searchFor string, printResult bool) {
 
 	// Set cache data
 	for i := 0; i < amountOfSets; i++ {
-		cache.Set(&SetData{
+		c.Set(&SetData{
 			Key:      fmt.Sprintf("key%d", i),
 			Value:    setValue,
 			FullText: true,
@@ -94,7 +94,7 @@ func (cache *_Cache) TestFullTextSearch(
 	var startTime time.Time = time.Now()
 
 	// Perform the full text search.
-	var result []string = cache.FullTextSearch(&TextSearch{
+	var result []string = c.FullTextSearch(&TextSearch{
 		Limit:      -1,
 		Query:      searchFor,
 		StrictMode: false,

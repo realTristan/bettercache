@@ -32,26 +32,26 @@ type SetData struct {
 		Value: interface{},
 		FullText: bool,
 } */
-func (cache *_Cache) Set(SD *SetData) {
+func (c *Cache) Set(SD *SetData) {
 	// Mutex locking
-	cache.mutex.Lock()
-	defer cache.mutex.Unlock()
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	// If key exists
-	if cache.ExistsInMap(SD.Key) || cache.ExistsInFullText(SD.Key) {
+	if c.existsInMap(SD.Key) || c.existsInFullText(SD.Key) {
 		// I decided to put this inside a function so that
 		// even if there's any errors in the Remove function,
 		// the mutex will still relock once the function returns
 		func() {
 			// Unlock the mutex so the remove function can
 			// remove the key from the cache
-			cache.mutex.Unlock()
+			c.mutex.Unlock()
 			// Then re-lock the mutex once the key has
 			// been removed
-			defer cache.mutex.Lock()
+			defer c.mutex.Lock()
 
 			// Remove the key from the cache
-			cache.Remove(SD.Key)
+			c.remove(SD.Key)
 		}()
 	}
 
@@ -59,17 +59,17 @@ func (cache *_Cache) Set(SD *SetData) {
 	if SD.FullText {
 		// Set the key in the cache full text indices map
 		// to the index the key value is at.
-		cache.fullTextIndices[SD.Key] = len(cache.fullTextData)
+		c.fullTextIndices[SD.Key] = len(c.fullTextData)
 
 		// Add the value into the cache data slice
 		// as a modified string
-		cache.fullTextData = append(cache.fullTextData,
+		c.fullTextData = append(c.fullTextData,
 			fmt.Sprintf("%s:%v", SD.Key, SD.Value))
 	} else {
 		// Set the key in the cache indices map to the
 		// index the key value is at.
-		cache.mapData[SD.Key] = SD.Value
+		c.mapData[SD.Key] = SD.Value
 	}
 	// Increase the current cache size
-	cache.currentSize++
+	c.currentSize++
 }

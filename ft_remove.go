@@ -35,45 +35,33 @@ type TextRemove struct {
 //
 /* >> Returns */
 /* res: []string */
-func (cache *_Cache) FullTextRemove(TR *TextRemove) []string {
+func (c *Cache) FullTextRemove(TR *TextRemove) []string {
 	// Mutex locking
-	cache.mutex.RLock()
-	defer cache.mutex.RUnlock()
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
 
 	// res -> The result slice containing the values
 	// that contain the TextSearch.Query
 	var res []string
 
 	// Iterate over the cache data
-	for i := 0; i < len(cache.fullTextData); i++ {
+	for i := 0; i < len(c.fullTextData); i++ {
 		if len(res) >= TR.Amount && TR.Amount > 0 {
 			return res
 		} else
 
-		// If the current cache.fullTextData index contains the
+		// If the current c.fullTextData index contains the
 		// provided query
-		if strings.Contains(cache.fullTextData[i], TR.Query) {
+		if strings.Contains(c.fullTextData[i], TR.Query) {
 			// Split the cache value by ':' to bypass
 			// the {key_name}:
-			var key string = strings.Split(cache.fullTextData[i], ":")[0]
+			var key string = strings.Split(c.fullTextData[i], ":")[0]
 			// Append value that contains the query to
 			// the result slice
-			res = append(res, cache.fullTextData[i][len(key)+1:])
+			res = append(res, c.fullTextData[i][len(key)+1:])
 
-			// I decided to put this inside a function so that
-			// even if there's any errors in the Remove function,
-			// the mutex will still relock once the function returns
-			func() {
-				// Unlock the mutex so the remove function can
-				// remove the key from the cache
-				cache.mutex.RUnlock()
-				// Then re-lock the mutex once the key has
-				// been removed
-				defer cache.mutex.RLock()
-
-				// Remove the key from the cache
-				cache.Remove(key)
-			}()
+			// Remove the key
+			c.remove(key)
 		}
 		//}
 	}
@@ -88,8 +76,8 @@ func (cache *_Cache) FullTextRemove(TR *TextRemove) []string {
 // Removes all cache keys that contain the provided query in their values
 /* Paramters */
 /*	query: string { "The string to query for" } */
-func (cache *_Cache) FullTextRemoveAll(query string) []string {
-	return cache.FullTextRemove(&TextRemove{
+func (c *Cache) FullTextRemoveAll(query string) []string {
+	return c.FullTextRemove(&TextRemove{
 		Query:  query,
 		Amount: -1,
 	})
