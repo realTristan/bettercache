@@ -232,22 +232,18 @@ func (c *Cache) CurrentSize() int {
 // function is much easier
 
 // Initializes the cache object
-/* Parameters: 												*/
-/* 	size: int { "The Size of the cache map and slice" }  	*/
 //
 /* Returns 													*/
 /* 	cache: *Cache 											*/
 func _init() *Cache {
-	var c *Cache = &Cache{
-		mutex:       &sync.RWMutex{},
-		currentSize: 0,
+	// Return a new Cache object
+	return &Cache{
+		mutex:           &sync.RWMutex{},
+		currentSize:     0,
+		mapData:         make(map[interface{}]interface{}),
+		fullTextData:    []string{},
+		fullTextIndices: make(map[interface{}]int),
 	}
-	//
-	c.mapData = make(map[interface{}]interface{})
-	c.fullTextData = []string{}
-	c.fullTextIndices = make(map[interface{}]int)
-	// Return the cache
-	return c
 }
 
 // The existsinFullText function is used for checking whether a key
