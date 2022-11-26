@@ -8,7 +8,7 @@ Modern Caching System for Go.
 
 # Installation
 `go get -u github.com/realTristan/bettercache`
-
+ 
 # Benchmarks
 
 <h3>Full Text Search</h3>
