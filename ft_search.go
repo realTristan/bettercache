@@ -81,7 +81,7 @@ func (c *Cache) FullTextSearch(TS *TextSearch) []string {
 	// Add the result to the previous search
 	// if the user set the previous search bool
 	// to true.
-	if len(TS.PreviousQueries) > 0 {
+	if TS.PreviousQueries != nil {
 		TS.PreviousQueries[TS.Query] = res
 	}
 	// Return the result slice
