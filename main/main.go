@@ -22,7 +22,7 @@ then post anything from that class to that github repo
 
 // Main function
 func main() {
-	c := cache.Init(-1)
+	c := cache.InitCache(-1)
 	//c.TestFullTextSearch(100, "value", "value", false)
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {

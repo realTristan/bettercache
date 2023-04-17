@@ -109,8 +109,8 @@ func (c *Cache) Remove(key interface{}) interface{} {
 //
 /* Returns 													*/
 /* 	cache: *Cache 											*/
-func Init() *Cache {
-	return _init()
+func InitCache() *Cache {
+	return initCache()
 }
 
 // The WalkNonFT function is used for iterating over
@@ -206,7 +206,7 @@ func (c *Cache) Clear() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	*c = *(_init())
+	*c = *(initCache())
 }
 
 // The CurrentSize function is used to get the current size
@@ -226,7 +226,7 @@ func (c *Cache) CurrentSize() int {
 	return func(cs int) int { return cs }(c.currentSize)
 }
 
-// The _init function is used for initalizing the Cache struct
+// The initCache function is used for initalizing the Cache struct
 // and returning the newly created cache object.
 // You can create the cache by yourself, but using the Init()
 // function is much easier
@@ -235,7 +235,7 @@ func (c *Cache) CurrentSize() int {
 //
 /* Returns 													*/
 /* 	cache: *Cache 											*/
-func _init() *Cache {
+func initCache() *Cache {
 	// Return a new Cache object
 	return &Cache{
 		mutex:           &sync.RWMutex{},
