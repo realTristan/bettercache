@@ -1,6 +1,7 @@
 package bettercache
 
 // Import fmt Package
+import "fmt"
 
 // The Set function is used for setting a new value inside
 // the cache data. The Set function locks the cache mutex to
@@ -33,9 +34,9 @@ func (c *Cache) Set(key string, value interface{}, fullText bool) {
 		// Set the key in the cache full text indices map
 		// to the index the key value is at.
 		c.fullTextIndices[key] = len(c.fullTextData)
-		if v, ok := value.(string); ok {
-			c.fullTextData = append(c.fullTextData, v)
-		}
+		// Add the value into the cache data slice
+		// as a modified string
+		c.fullTextData = append(c.fullTextData, fmt.Sprintf("%s:%v", key, value))
 	} else {
 		// Set the key in the cache indices map to the
 		// index the key value is at.
