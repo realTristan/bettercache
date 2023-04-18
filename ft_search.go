@@ -75,7 +75,7 @@ func (c *Cache) FullTextSearch(TS *TextSearch) []string {
 		}() {
 			// Append value that contains the query to
 			// the result slice
-			res = append(res, strings.Split(c.fullTextData[i], ":")[1])
+			res = append(res, c.fullTextData[i])
 		}
 	}
 	// Add the result to the previous search

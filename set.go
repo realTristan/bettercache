@@ -36,7 +36,7 @@ func (c *Cache) Set(key string, value interface{}, fullText bool) {
 		c.fullTextIndices[key] = len(c.fullTextData)
 		// Add the value into the cache data slice
 		// as a modified string
-		c.fullTextData = append(c.fullTextData, fmt.Sprintf("%s:%v", key, value))
+		c.fullTextData = append(c.fullTextData, fmt.Sprintf("%v", value))
 	} else {
 		// Set the key in the cache indices map to the
 		// index the key value is at.

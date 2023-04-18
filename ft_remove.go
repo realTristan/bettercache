@@ -53,17 +53,13 @@ func (c *Cache) FullTextRemove(TR *TextRemove) []string {
 		// If the current c.fullTextData index contains the
 		// provided query
 		if strings.Contains(c.fullTextData[i], TR.Query) {
-			// Split the cache value by ':' to bypass
-			// the {key_name}:
-			var key string = strings.Split(c.fullTextData[i], ":")[0]
 			// Append value that contains the query to
 			// the result slice
-			res = append(res, c.fullTextData[i][len(key)+1:])
+			res = append(res, c.fullTextData[i])
 
 			// Remove the key
-			c.remove(key)
+			c.remove(c.fullTextData[i])
 		}
-		//}
 	}
 	// Return the slice containing all
 	// of the removed values

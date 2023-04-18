@@ -47,9 +47,6 @@ func (c *Cache) Exists(key string) bool {
 // index and return the cache value. Once the function returns,
 // the mutex is unlocked
 //
-// If the cache value's FullText has been set to true, it will split
-// the value by ':' and return the index[2] of it's result
-
 // Returns the cache value of the provided key
 /* Parameters: 								*/
 /* 	key: string { "The Cache Key" } 	*/
