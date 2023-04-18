@@ -13,8 +13,10 @@ func getWrapper(o interface{}) string {
 	switch o.(type) {
 	case int:
 		return fmt.Sprintf("$INT(%v", o)
+	case string:
+		return fmt.Sprintf("$STR(%v", o)
 	}
-	return fmt.Sprintf("$STR(%v", o)
+	return fmt.Sprintf("$OTHER(%v", o)
 }
 
 // The flushToFile function is used to write all the

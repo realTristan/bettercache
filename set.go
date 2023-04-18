@@ -1,19 +1,6 @@
 package bettercache
 
 // Import fmt Package
-import "fmt"
-
-// The SetData struct has three primary keys
-/* Key: interface{} { "The Cache Key" }									*/
-/* Value: interface{} { "The Cache Value" }								*/
-/* FullText: bool { "Whether to enable full text functions " }			*/
-// WARNING
-/* If FullText is set to true, it converts the Value to a string		*/
-type SetData struct {
-	Key      interface{}
-	Value    interface{}
-	FullText bool
-}
 
 // The Set function is used for setting a new value inside
 // the cache data. The Set function locks the cache mutex to
@@ -27,36 +14,32 @@ type SetData struct {
 
 // Sets a key to the provided value
 /* Parameters: */
-/* 	SD &SetData = *SetData{
-		Key: interface{},
-		Value: interface{},
-		FullText: bool,
-} */
-func (c *Cache) Set(SD *SetData) {
+/* 	key: string, { "The Cache Key" } */
+/* 	value: interface{}, { "The Cache Value" } */
+/* 	fullText: bool, { "Whether the value should be added to the full text cache" } */
+func (c *Cache) Set(key string, value interface{}, fullText bool) {
 	// Mutex locking
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
 	// If key exists
-	if c.existsInMap(SD.Key) || c.existsInFullText(SD.Key) {
+	if c.existsInMap(key) || c.existsInFullText(key) {
 		// Remove the key from the cache
-		c.remove(SD.Key)
+		c.remove(key)
 	}
 
 	// If the user set the AddToFullText to true
-	if SD.FullText {
+	if fullText {
 		// Set the key in the cache full text indices map
 		// to the index the key value is at.
-		c.fullTextIndices[SD.Key] = len(c.fullTextData)
-
-		// Add the value into the cache data slice
-		// as a modified string
-		c.fullTextData = append(c.fullTextData,
-			fmt.Sprintf("%s:%v", SD.Key, SD.Value))
+		c.fullTextIndices[key] = len(c.fullTextData)
+		if v, ok := value.(string); ok {
+			c.fullTextData = append(c.fullTextData, v)
+		}
 	} else {
 		// Set the key in the cache indices map to the
 		// index the key value is at.
-		c.mapData[SD.Key] = SD.Value
+		c.mapData[key] = value
 	}
 	// Increase the current cache size
 	c.currentSize++

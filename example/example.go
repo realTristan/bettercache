@@ -22,21 +22,14 @@ then post anything from that class to that github repo
 
 // Main function
 func main() {
-	c := cache.InitCache(-1)
+	c := cache.InitCache()
+
 	//c.TestFullTextSearch(100, "value", "value", false)
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
-			c.Set(&cache.SetData{
-				Key:      fmt.Sprintf("key%d", i),
-				Value:    fmt.Sprintf("value%d", i),
-				FullText: true,
-			})
+			c.Set(fmt.Sprintf("key%d", i), fmt.Sprintf("value%d", i), true)
 		} else {
-			c.Set(&cache.SetData{
-				Key:      fmt.Sprintf("key%d", i),
-				Value:    i,
-				FullText: false,
-			})
+			c.Set(fmt.Sprintf("key%d", i), i, false)
 		}
 	}
 

@@ -9,15 +9,15 @@ import (
 // The Cache struct has six primary keys (all unexported)
 /* currentSize: int { "The current map size" } */
 /* mutex: *sync.RWMutex { "The mutex for locking/unlocking the data" } 				  */
-/* mapData: map[interface{}]interface{} { "The Main Data Cache Values" } 								  */
+/* mapData: map[string]interface{} { "The Main Data Cache Values" } 								  */
 /* fullTextData: []string { "The Full Text Data Cache Values" } 					  */
 /* fulltextIndices: map[string]int { "The Cache Keys holding the full text indices of the Cache Values" } 	*/
 type Cache struct {
 	currentSize     int
 	mutex           *sync.RWMutex
 	fullTextData    []string
-	fullTextIndices map[interface{}]int
-	mapData         map[interface{}]interface{}
+	fullTextIndices map[string]int
+	mapData         map[string]interface{}
 }
 
 // The Exists function is used for checking whether a key
@@ -27,11 +27,11 @@ type Cache struct {
 
 // Returns whether the provided key exists in the cache
 /* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+/* 	key: string { "The Cache Key" } 	*/
 //
 /* Returns 									*/
 /* 	doesExist: bool 						*/
-func (c *Cache) Exists(key interface{}) bool {
+func (c *Cache) Exists(key string) bool {
 	// Mutex locking/unlocking
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -52,11 +52,11 @@ func (c *Cache) Exists(key interface{}) bool {
 
 // Returns the cache value of the provided key
 /* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+/* 	key: string { "The Cache Key" } 	*/
 //
 /* Returns 									*/
 /* 	cacheValue: interface{} 				*/
-func (c *Cache) Get(key interface{}) interface{} {
+func (c *Cache) Get(key string) interface{} {
 	// Mutex locking/unlocking
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -87,11 +87,11 @@ func (c *Cache) Get(key interface{}) interface{} {
 
 // Removes a key from the cache
 /* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+/* 	key: string { "The Cache Key" } 	*/
 //
 /* Returns 									*/
-/* 	removedValue: interface{} 				*/
-func (c *Cache) Remove(key interface{}) interface{} {
+/* 	removedValue: string} 				*/
+func (c *Cache) Remove(key string) interface{} {
 	// Mutex locking
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -122,7 +122,7 @@ func InitCache() *Cache {
 		return true
 	}
 */
-func (c *Cache) WalkNonFT(fn func(key, val interface{}) bool) {
+func (c *Cache) WalkNonFT(fn func(key string, val interface{}) bool) {
 	// Mutex locking
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -144,7 +144,7 @@ func (c *Cache) WalkNonFT(fn func(key, val interface{}) bool) {
 		return true
 	}
 */
-func (c *Cache) WalkFT(fn func(key, val interface{}) bool) {
+func (c *Cache) WalkFT(fn func(key string, val interface{}) bool) {
 	// Mutex locking
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -172,8 +172,8 @@ func (c *Cache) WalkFT(fn func(key, val interface{}) bool) {
 // Returns all the cache keys in a slice
 //
 /* Returns 							*/
-/* 	keys: []interface{}				*/
-func (c *Cache) ShowKeys() []interface{} {
+/* 	keys: []string				*/
+func (c *Cache) ShowKeys() []string {
 	// Mutex locking
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -181,7 +181,7 @@ func (c *Cache) ShowKeys() []interface{} {
 	// Define Variables
 	var (
 		// keys -> The slice containing the keys
-		keys []interface{} = make([]interface{}, len(c.mapData))
+		keys []string = []string{}
 		// i -> Track the index for setting the keys
 		i int = 0
 	)
@@ -205,7 +205,6 @@ func (c *Cache) Clear() {
 	// Mutex locking
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-
 	*c = *(initCache())
 }
 
@@ -240,9 +239,9 @@ func initCache() *Cache {
 	return &Cache{
 		mutex:           &sync.RWMutex{},
 		currentSize:     0,
-		mapData:         make(map[interface{}]interface{}),
+		mapData:         make(map[string]interface{}),
 		fullTextData:    []string{},
-		fullTextIndices: make(map[interface{}]int),
+		fullTextIndices: make(map[string]int),
 	}
 }
 
@@ -253,11 +252,11 @@ func initCache() *Cache {
 
 // Returns whether the provided key exists in the cache
 /* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+/* 	key: string { "The Cache Key" } 	*/
 //
 /* Returns 									*/
 /* 	doesExist: bool 						*/
-func (c *Cache) existsInFullText(key interface{}) bool {
+func (c *Cache) existsInFullText(key string) bool {
 	// Check if the key exists within the c.fullTextIndices
 	if _, t := c.fullTextIndices[key]; t {
 		return true
@@ -272,11 +271,11 @@ func (c *Cache) existsInFullText(key interface{}) bool {
 
 // Returns whether the provided key exists in the cache
 /* Parameters: 							*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+/* 	key: string { "The Cache Key" } 	*/
 //
 /* Returns 								*/
 /* 	doesExist: bool 					*/
-func (c *Cache) existsInMap(key interface{}) bool {
+func (c *Cache) existsInMap(key string) bool {
 	// Check if the key exists within the c.fullTextIndices
 	if _, t := c.mapData[key]; t {
 		return true
@@ -295,11 +294,11 @@ func (c *Cache) existsInMap(key interface{}) bool {
 
 // Removes a key from the cache
 /* Parameters: 								*/
-/* 	key: interface{} { "The Cache Key" } 	*/
+/* 	key: string { "The Cache Key" } 	*/
 //
 /* Returns 									*/
 /* 	removedValue: interface{} 				*/
-func (c *Cache) remove(key interface{}) interface{} {
+func (c *Cache) remove(key string) interface{} {
 	// Check if the value is not a full text value
 	if c.existsInMap(key) {
 		c.currentSize--
