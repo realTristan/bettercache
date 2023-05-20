@@ -1,28 +1,10 @@
 # Better Cache ![Stars](https://img.shields.io/github/stars/realTristan/bettercache?color=brightgreen) ![Watchers](https://img.shields.io/github/watchers/realTristan/bettercache?label=Watchers)
 ![banner (5)](https://user-images.githubusercontent.com/75189508/186757681-6b7f97e8-ec37-448a-83cc-75106ed16309.png)
 
-Modern Caching System for Go.
-
-# Why BetterCache?
-- Better Cache is a Modern, Native golang caching system that utilizes slices for storing data. Because of this, we can perform lightning fast full text searches, full text removes, etc.
-
-# Installation
+# Install
 `go get -u github.com/realTristan/bettercache`
- 
-# Benchmarks
 
-<h3>Full Text Search</h3>
-
-```
-    (1) Cache Size: 25 -> ~779ns
-    (10) Cache Size: 250 -> ~3.203µs
-    (100) Cache Size: 2,500 -> ~13.324µs
-    (1,000) Cache Size: 25,000 -> ~160.049µs
-    (10,000) Cache Size: 250,000 -> ~2.059ms
-```
-
-# Quick Usage
-
+# Example Usage
 ```go
 package main
 
