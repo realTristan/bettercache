@@ -9,17 +9,6 @@ import (
 	cache "github.com/realTristan/bettercache"
 )
 
-/*
-
-ask permission from teacher first though!
-
-when have wifi, created a github repo with the class
-code of the grade 12 computer science class I will be taking
-
-then post anything from that class to that github repo
-
-*/
-
 // Main function
 func main() {
 	c := cache.InitCache()
@@ -34,7 +23,6 @@ func main() {
 	}
 
 	st := time.Now()
-	c.Flush("../BetterCache")
 	fmt.Println(time.Since(st))
 
 	Map_VS_Slice()

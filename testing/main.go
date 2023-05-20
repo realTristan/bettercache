@@ -3,6 +3,8 @@ package bettercache
 import (
 	"fmt"
 	"time"
+
+	bc "github.com/realTristan/bettercache"
 )
 
 // The TestSet() function loops by the provided
@@ -11,7 +13,7 @@ import (
 //
 // Using the provided value size, it will modify
 // how large the value is.
-func (c *Cache) TestSet(amountOfKeys int, setValue string) {
+func TestSet(c *bc.Cache, amountOfKeys int, setValue string) {
 	var startTime time.Time = time.Now()
 	for i := 0; i < amountOfKeys; i++ {
 		c.Set(fmt.Sprintf("key%d", i), setValue, true)
@@ -27,7 +29,7 @@ func (c *Cache) TestSet(amountOfKeys int, setValue string) {
 // After the keys are added, it then iterates over the cache
 // and loops by the provided amount of removes
 // and removes each key from the cache
-func (c *Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
+func TestRemove(c *bc.Cache, amountOfSets int, amountOfRemoves int) {
 	for i := 0; i < amountOfSets; i++ {
 		c.Set(fmt.Sprintf("key%d", i), "value", true)
 	}
@@ -46,7 +48,7 @@ func (c *Cache) TestRemove(amountOfSets int, amountOfRemoves int) {
 //
 // After the keys and values are set, it then loops over the cache
 // by the amount of gets
-func (c *Cache) TestGet(amountOfSets int, setValue string, amountOfGets int) {
+func TestGet(c *bc.Cache, amountOfSets int, setValue string, amountOfGets int) {
 	for i := 0; i < amountOfSets; i++ {
 		c.Set(fmt.Sprintf("key%d", i), setValue, true)
 	}
@@ -67,8 +69,10 @@ func (c *Cache) TestGet(amountOfSets int, setValue string, amountOfGets int) {
 // After the keys and values are set, it then performs the full text search
 // and whether the printResult parameter is set to true or not, it will
 // print the result string.
-func (c *Cache) TestFullTextSearch(
-	amountOfSets int, setValue string, searchFor string, printResult bool) {
+func CacheTestFullTextSearch(
+	c *bc.Cache, amountOfSets int, setValue string,
+	searchFor string, printResult bool,
+) {
 
 	// Set cache data
 	for i := 0; i < amountOfSets; i++ {
@@ -78,7 +82,7 @@ func (c *Cache) TestFullTextSearch(
 	var startTime time.Time = time.Now()
 
 	// Perform the full text search.
-	var result []string = c.FullTextSearch(&TextSearch{
+	var result []string = c.FullTextSearch(&bc.TextSearch{
 		Limit:      -1,
 		Query:      searchFor,
 		StrictMode: false,
